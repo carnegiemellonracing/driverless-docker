@@ -7,7 +7,7 @@
 `git clone <link-to-repo>`
 
 ## To build the Docker container:
-`cd driverless-docker`
+`cd driverless-docker` <br>
 `sudo docker build -t driverless-image .`
 
 ## To run the Docker container:
