@@ -1,5 +1,7 @@
 # driverless-docker
 
+Note: Windows users please use WSL (Windows Subsystem for Linux)
+
 ## Prerequisites:
 Docker
 
