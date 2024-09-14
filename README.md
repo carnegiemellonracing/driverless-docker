@@ -6,7 +6,7 @@ Note: Windows users please use WSL (Windows Subsystem for Linux)
 Docker
 
 ## To clone the repository:
-`git clone <link-to-repo>`
+`git clone https://github.com/carnegiemellonracing/driverless-docker.git`
 
 ## To build the Docker container:
 `cd driverless-docker` <br>
