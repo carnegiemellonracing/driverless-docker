@@ -10,6 +10,7 @@ Docker
 
 ## To build the Docker container:
 `cd driverless-docker` <br>
+`docker pull ubuntu:22.04`
 `sudo docker build -t driverless-image .`
 
 ## To run the Docker container:
