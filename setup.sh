@@ -52,6 +52,9 @@ apt install -y git vim python3-pip locales curl tmux
 
 apt install -y ros-dev-tools ros-humble-tf-transformations libeigen3-dev libgsl-dev
 
+# Foxglove bridge
+apt install -y ros-humble-foxglove-bridge
+
 # Install GTSAM for Path Planning
 if $PATH_PLANNING; then 
     cd ~
