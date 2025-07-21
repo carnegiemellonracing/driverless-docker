@@ -1,0 +1,24 @@
+services:
+  26x:
+    build: ./
+    environment:
+      - DISPLAY=novnc:0.0
+    networks:
+      - x11
+    ports:
+      - "8765:8765"
+    stdin_open: true
+    tty: true
+  novnc:
+    image: theasp/novnc:latest
+    environment:
+      # Adjust to your screen size
+      - DISPLAY_WIDTH=1600
+      - DISPLAY_HEIGHT=968
+      - RUN_XTERM=no
+    ports:
+      - "8080:8080"
+    networks:
+      - x11
+networks:
+  x11:
