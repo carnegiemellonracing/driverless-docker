@@ -15,7 +15,7 @@ cd driverless-docker
 docker compose up
 ```
 
-## To run scripts from the container (attach terminal)
+## To run scripts from the container (attach interactive shell to container)
 ```bash
 docker exec -it driverless-docker-26x-1 /bin/bash
 ```
@@ -30,13 +30,13 @@ docker compose up --build
 ## Visualization
 
 ### Foxglove
-1. Open a terminal and attach to container
+1. Open a terminal and attach to container. Run:
 
     ```bash 
     ros2 run foxglove_bridge foxglove_bridge
     ```
 2. In a browser of your choice, go to (app.foxglove.dev)[app.foxglove.dev] and make and account / sign in
-3. Open a new connnecito to ws://localhost:8765
+3. Open a new connnection to ws://localhost:8765
 4. Do stuff!
 
 ![Foxglove Viz](Images/foxglove.png "Visualizing lidar data in Foxglove")
