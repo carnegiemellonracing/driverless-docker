@@ -2,10 +2,12 @@
 
 ## Prerequisites:
 install docker for your machine.
-[Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI) + docker compose
+[Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI, docker compose, etc...)
 
 ## To clone the repository:
-`git clone https://github.com/carnegiemellonracing/driverless-docker.git`
+```bash
+git clone https://github.com/carnegiemellonracing/driverless-docker.git
+```
 
 ## To build / run the Docker container:
 ```bash
