@@ -4,6 +4,8 @@
 install docker for your machine.
 [Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI, docker compose, etc...)
 
+it is also recommended to install Visual Studio Code (VSCode) along with the Dev Containers extension to work with the docker container
+
 ## To clone the repository:
 ```bash
 git clone https://github.com/carnegiemellonracing/driverless-docker.git
@@ -15,6 +17,9 @@ cd driverless-docker
 docker compose up
 ```
 
+>![INFO]
+> run `docker compose up -d` if you want to run the node in detached mode in the background. You can always turn it off from docker desktop, VSCode, or the CLI.
+
 ## To run scripts from the container (attach interactive shell to container)
 ```bash
 docker exec -it driverless-docker-26x-1 /bin/bash
@@ -23,6 +28,10 @@ docker exec -it driverless-docker-26x-1 /bin/bash
 - Note: Would also run with dev-containers extension with vscode
 
 ## To rebuild the Docker container:
+
+>![NOTE]
+> This is only required if you make a change with the `Dockerfile` or the `docker-compose.yaml`
+
 ```bash 
 docker compose up --build
 ```
