@@ -55,16 +55,20 @@ apt install -y ros-dev-tools ros-humble-tf-transformations libeigen3-dev libgsl-
 # Foxglove bridge
 apt install -y ros-humble-foxglove-bridge
 
+cd ~
+
 # Install GTSAM for Path Planning
 if $PATH_PLANNING; then 
-    cd ~
     apt-get install -y libboost-all-dev cmake
     git clone https://github.com/borglab/gtsam.git
     cd gtsam
-    mkdir build
-    cd build
+    git checkout release/4.3a0
+    mkdir build && cd build
     cmake ..
-    make install
+    make check -j$(nproc)
+    make install -j$(nproc)
+    sudo ldconfig
+    cd ../..
 fi
 
 # Clone driverless repo

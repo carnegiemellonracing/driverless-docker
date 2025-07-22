@@ -10,8 +10,8 @@ RUN chmod +x /setup.sh
 # RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # run with gtsam for path planning built
-# RUN /setup.sh -p  
+RUN /setup.sh -p  
 
 # run without gtsam built
-RUN /setup.sh  
+# RUN /setup.sh  
 # COPY quaternions.py /usr/lib/python3/dist-packages/transforms3d/quaternions.py
