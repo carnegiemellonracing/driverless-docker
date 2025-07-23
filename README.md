@@ -18,6 +18,24 @@ git clone https://github.com/carnegiemellonracing/driverless-docker.git
 ```
 
 ## To build / run the Docker container:
+#### With SLAM Package
+```bash
+cd driverless-docker
+docker compose up
+```
+#### Without SLAM Package
+1. Using your choice of text editor, open the Dockerfile located in the root directory of this project
+2. Comment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L13)
+``` ruby [comment]: <> (this is just for color LOL)
+13 RUN /setup.sh -p
+```
+3. Uncomment out the following [lines](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
+``` ruby
+16 # RUN /setup.sh  
+17 # COPY quaternions.py /usr/lib/python3/dist-packages/transforms3d/quaternions.py
+```
+<br />
+
 ```bash
 cd driverless-docker
 docker compose up
