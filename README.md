@@ -23,7 +23,7 @@ cd driverless-docker
 docker compose up
 ```
 
->![INFO]
+> [!NOTE]
 > run `docker compose up -d` if you want to run the node in detached mode in the background. You can always turn it off from docker desktop, VSCode, or the CLI.
 
 ## To run scripts from the container (attach interactive shell to container)
