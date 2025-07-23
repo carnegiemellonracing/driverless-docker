@@ -1,8 +1,14 @@
 # driverless-docker
 
+> [!NOTE]
+> If you have issues in any step of the following procedure, please check [issues that have already been solved](https://github.com/carnegiemellonracing/driverless-docker/issues?q=is%3Aissue)
+
 ## Prerequisites:
 install docker for your machine.
 [Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI, docker compose, etc...)
+
+> [!WARNING]
+> For MacOS users ensure rosetta setting in docker desktop is unchecked (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/1))
 
 it is also recommended to install Visual Studio Code (VSCode) along with the Dev Containers extension to work with the docker container
 
@@ -29,8 +35,8 @@ docker exec -it driverless-docker-26x-1 /bin/bash
 
 ## To rebuild the Docker container:
 
->![NOTE]
-> This is only required if you make a change with the `Dockerfile` or the `docker-compose.yaml`
+> [!NOTE]
+> This is only required if you make a change in the `Dockerfile` or the `docker-compose.yaml`
 
 ```bash 
 docker compose up --build
