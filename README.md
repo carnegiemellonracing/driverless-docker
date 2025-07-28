@@ -18,20 +18,25 @@ git clone https://github.com/carnegiemellonracing/driverless-docker.git
 ```
 
 ## To build / run the Docker container:
-#### With SLAM Package
+
+#### Without SLAM Package
 ```bash
 cd driverless-docker
 docker compose up
 ```
-#### Without SLAM Package
+
+#### With SLAM Package
+> [!WARNING]
+> This can add 1+ hrs to the container build time. Only proceed if you need to run path planning modules.
+
 1. Using your choice of text editor, open the Dockerfile located in the root directory of this project
-2. Comment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L13)
+2. Uncomment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L13)
 ``` ruby [comment]: <> (this is just for color LOL)
-13 RUN /setup.sh -p
+8 # RUN /setup.sh -p
 ```
-3. Uncomment out the following [lines](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
+3. Comment out the following [lines](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
 ``` ruby
-16 # RUN /setup.sh 
+11 RUN /setup.sh 
 ```
 <br />
 
