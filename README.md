@@ -34,7 +34,7 @@ docker compose up
 ``` ruby [comment]: <> (this is just for color LOL)
 8 # RUN /setup.sh -p
 ```
-3. Comment out the following [lines](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
+3. Comment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
 ``` ruby
 11 RUN /setup.sh 
 ```
