@@ -31,8 +31,7 @@ docker compose up
 ```
 3. Uncomment out the following [lines](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
 ``` ruby
-16 # RUN /setup.sh  
-17 # COPY quaternions.py /usr/lib/python3/dist-packages/transforms3d/quaternions.py
+16 # RUN /setup.sh 
 ```
 <br />
 
