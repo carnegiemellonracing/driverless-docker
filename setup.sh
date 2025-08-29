@@ -55,6 +55,9 @@ apt install -y ros-dev-tools ros-humble-tf-transformations libeigen3-dev libgsl-
 # Foxglove bridge
 apt install -y ros-humble-foxglove-bridge
 
+# bc for bash math (used for scripts)
+apt install -y bc
+
 cd ~
 
 # Install GTSAM for Path Planning
