@@ -81,6 +81,22 @@ cd driverless/driverless_ws
 source /opt/ros/humble/setup.bash
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 echo "cd /root" >> ~/.bashrc
+echo "alias sros='source install/setup.bash'" >> ~/.bashrc
+echo "alias dv_src='source ~/driverless/driverless_ws/install/setup.bash || echo "driverless_ws likely not built. Try building with colcon build in ~/driverless/driverless_ws"'" >> ~/.bashrc
+
+# enable command history
+cat << 'EOF' >> ~/.bashrc
+# Append commands to history file immediately
+export PROMPT_COMMAND="history -a"
+
+# Ensure history is appended, not overwritten
+shopt -s histappend
+
+# Optional: Configure history size
+export HISTSIZE=10000 # Number of commands to remember in the history list
+export HISTFILESIZE=20000 # Maximum size of the history file in lines
+
+EOF
 
 # Add commands to build relevent packages
 # colcon build --packages-up-to perceptions_24a_cpp
