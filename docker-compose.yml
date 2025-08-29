@@ -1,6 +1,9 @@
 services:
   26x:
     build: ./
+    volumes:
+      - ./test_ws:/root/test_ws
+      - ./rosbags:/root/rosbags
     environment:
       - DISPLAY=novnc:0.0
     networks:
