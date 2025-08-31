@@ -1,7 +1,8 @@
 FROM nvcr.io/nvidia/pytorch:25.08-py3
 
-COPY setup.sh /setup.sh
+WORKDIR /root
 
-RUN chmod +x /setup.sh
+COPY ml_requirements.txt .
+COPY ml_setup.sh .
 
-RUN /setup.sh
+RUN chmod +x ml_setup.sh && ./ml_setup.sh
