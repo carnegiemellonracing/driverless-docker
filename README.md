@@ -1,14 +1,46 @@
 # driverless-docker
 
+## Table of Contents
+
+* [What is Docker / Why do we use it?](#what-is-docker--why-do-we-use-it)
+* [Prerequisites](#prerequisites)
+* [To clone the repository](#to-clone-the-repository)
+* [To build / run the Docker container](#to-build--run-the-docker-container)
+    * [Without SLAM Package](#without-slam-package)
+    * [With SLAM Package](#with-slam-package)
+* [To run scripts from the container (attach interactive shell to container)](#to-run-scripts-from-the-container-attach-interactive-shell-to-container)
+* [To rebuild the Docker container](#to-rebuild-the-docker-container)
+* [Visualization](#visualization)
+    * [Foxglove](#foxglove)
+    * [RVIZ / RQT\_GRAPH / Desktop-related stuff, e.g., matplotlib...](#rviz--rqt_graph--desktop-related-stuff-eg-matplotlib)
+
+
+## What is Docker / Why do we use it?
+
+Check out [this](https://docs.google.com/presentation/d/1i58fbb-e5uO1mVOff-ncIiogv28kOKN-KCW4cd_dVA8/edit?usp=sharing) google slide deck for more info (need access to CMR GDrive)
+
+Docker is a way to manage "containers" of software. These "containers" are simply a set of packages and files (could be as simple as a single executable or as complex as an operating system with a Python and c++ installation and various files and programs).
+
+It allows you to quickly get started working with Git, ROS2, CMR Pipelines, etc… Don't have to worry about installing and fixing all of the dependencies!
+
+Essentially, we use Docker for a few reasons:
+- Standard development environment
+    - Packages, OS, etc… allows us to run our codebase under a set of “standard conditions”
+    - GitHub Repository (our codebase) 
+- Convenience
+    - **You can start a container on your laptop, a random PC, or any other device and have access to the versions, packages, etc… that you need!** 
+
+
 > [!NOTE]
 > If you have issues in any step of the following procedure, please check [issues that have already been solved](https://github.com/carnegiemellonracing/driverless-docker/issues?q=is%3Aissue)
+
 
 ## Prerequisites:
 install docker for your machine.
 [Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI, docker compose, etc...)
 
 > [!WARNING]
-> There are a few potential pitfalls when isntalling docker desktop. This list below is not comprehensive, but we will aim to update it as new issues/solutions are found:
+> There are a few potential pitfalls when installing docker desktop. This list below is not comprehensive, but we will aim to update it as new issues/solutions are found:
 >
 > 1. For Linux Users, ensure that you add your user to the docker group at the end of setup (see [docker guide](https://docs.docker.com/engine/install/linux-postinstall/)). This will ensure you're running the container with the correct permissions! (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/4))
 > 2. For MacOS users ensure rosetta setting in docker desktop is unchecked (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/1))
