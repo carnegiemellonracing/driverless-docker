@@ -8,7 +8,10 @@ install docker for your machine.
 [Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI, docker compose, etc...)
 
 > [!WARNING]
-> For MacOS users ensure rosetta setting in docker desktop is unchecked (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/1))
+> There are a few potential pitfalls when isntalling docker desktop. This list below is not comprehensive, but we will aim to update it as new issues/solutions are found:
+>
+> 1. For Linux Users, ensure that you add your user to the docker group at the end of setup (see [docker guide](https://docs.docker.com/engine/install/linux-postinstall/)). This will ensure you're running the container with the correct permissions! (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/4))
+> 2. For MacOS users ensure rosetta setting in docker desktop is unchecked (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/1))
 
 it is also recommended to install Visual Studio Code (VSCode) along with the Dev Containers extension to work with the docker container
 
