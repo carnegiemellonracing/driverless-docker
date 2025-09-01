@@ -1,5 +1,8 @@
 # driverless-docker
 
+> [!NOTE]
+> If you have issues in any step of the following procedure, please check [issues that have already been solved](https://github.com/carnegiemellonracing/driverless-docker/issues?q=is%3Aissue)
+
 ## Table of Contents
 
 * [What is Docker / Why do we use it?](#what-is-docker--why-do-we-use-it)
@@ -29,11 +32,6 @@ Essentially, we use Docker for a few reasons:
     - GitHub Repository (our codebase) 
 - Convenience
     - **You can start a container on your laptop, a random PC, or any other device and have access to the versions, packages, etc… that you need!** 
-
-
-> [!NOTE]
-> If you have issues in any step of the following procedure, please check [issues that have already been solved](https://github.com/carnegiemellonracing/driverless-docker/issues?q=is%3Aissue)
-
 
 ## Prerequisites:
 install docker for your machine.
