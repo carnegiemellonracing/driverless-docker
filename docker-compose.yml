@@ -19,7 +19,7 @@ services:
       context: ./docker/ml-dev
       dockerfile: ml.Dockerfile
     volumes:
-      - ../ml_data:/root/ml_data
+      - ./ml_data:/root/ml_data
     environment:
       - DISPLAY=novnc:0.0
     networks:
