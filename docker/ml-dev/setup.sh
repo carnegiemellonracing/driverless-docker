@@ -10,6 +10,6 @@ echo "Installing packages"
 pip install --no-cache-dir -r ml_requirements.txt
 
 echo "Clone YOLO project repository"
-# git clone .... /root/yolo_project
+git clone https://github.com/carnegiemellonracing/driverless-ml-dev.git /root/driverless-ml-dev
 
 echo "ML Environment Setup Complete"
