@@ -1,6 +1,9 @@
 services:
   26x:
-    build: ./
+    build: 
+      context: ./
+      secrets:
+        - github_pat
     volumes:
       - ./test_ws:/root/test_ws
       - ./rosbags:/root/rosbags
@@ -25,3 +28,6 @@ services:
       - x11
 networks:
   x11:
+secrets:
+  github_pat:
+    environment: GITHUB_PAT
