@@ -74,7 +74,9 @@ if $PATH_PLANNING; then
     cd ../..
 fi
 
+
 # Clone driverless repo
+git config --global url."https://oauth2:$(cat /run/secrets/github_pat)@github.com/".insteadOf "https://github.com/"
 git clone --recurse-submodules https://github.com/carnegiemellonracing/driverless.git
 cd driverless/driverless_ws
 
