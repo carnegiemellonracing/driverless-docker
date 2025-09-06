@@ -5,7 +5,7 @@ services:
       secrets:
         - github_pat
       args:
-        GITHUB_USERNAME: "{$GH_USER}"
+        GITHUB_USERNAME: "$GH_USER"
     volumes:
       - ./test_ws:/root/test_ws
       - ./rosbags:/root/rosbags

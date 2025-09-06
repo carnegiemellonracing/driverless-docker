@@ -12,4 +12,4 @@ RUN chmod +x /setup.sh
 # RUN /setup.sh -p  
 
 # run without gtsam built
-RUN /setup.sh  
+RUN --mount=type=secret,id=github_pat /setup.sh  
