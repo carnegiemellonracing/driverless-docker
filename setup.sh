@@ -18,7 +18,7 @@ done
 set -e
 
 apt update
-apt install -y git vim python3-pip locales curl tmux
+apt install -y git gh vim python3-pip locales curl tmux
 
 #------------------------------------------------->
 #-----------------------OLD------------------------
@@ -76,8 +76,7 @@ fi
 
 
 # Clone driverless repo
-git config --global url."https://$GITHUB_USERNAME:$(cat /run/secrets/github_pat)@github.com/".insteadOf "https://github.com/"
-git clone --recurse-submodules https://github.com/carnegiemellonracing/driverless.git
+git clone --recurse-submodules https://$GITHUB_USERNAME:$(cat /run/secrets/github_pat)@github.com/carnegiemellonracing/driverless.git
 cd driverless/driverless_ws
 
 source /opt/ros/humble/setup.bash

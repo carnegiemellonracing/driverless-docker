@@ -50,6 +50,38 @@ it is also recommended to install Visual Studio Code (VSCode) along with the Dev
 git clone https://github.com/carnegiemellonracing/driverless-docker.git
 ```
 
+
+## Authentication
+
+*Now that CMR Driverless is a private repository we need to authenticate via [personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#about-personal-access-tokens)*
+
+#### Generate a Personal Access Token
+- Go to [GitHub](https://github.com/settings/tokens) (GitHub -> Settings -> Developer Settings -> Personal Access Tokens)
+- You can use either Classic or Fine-Grained Tokens. *You may not have access to fine-grained tokens for the CMR organization*
+    - Classic: Ensure the following are selected (add write:packages if you have access / need it)
+
+    ![Classic Token Scopes](Images/classic_token_scopes.png "Classic Token Required Scopes")
+
+    - Fine-Grained: Ensure the following are selected (add write:packages if you have access / need it)
+
+    ![Fine-Grained Token Resource Owner](Images/fine_grained_resource_owner.png "Fine-Grained Token Resource Owner")
+
+    ![Fine-Grained Token Scopes](Images/fine_grained_scopes.png "Fine-Grained Token Required Scopes")
+
+- Copy the token and export to your terminal where you cloned the repo
+
+    - Copy the token and paste into terminal
+
+    ```bash 
+    # Make sure to paste your token / username instead of the bracketed text
+    export GITHUB_PAT="<YOUR TOKEN HERE>"
+    export GH_USER="<YOUR GITHUB USERNAME>"
+    ```
+
+    ![Sample Token Gen Output](Images/sample_token_output.png "Sample output token")
+    *don't try this token...*
+    
+
 ## To build / run the Docker container:
 
 #### Without SLAM Package
@@ -87,6 +119,14 @@ docker exec -it driverless-docker-26x-1 /bin/bash
 ```
 
 - Note: Would also run with dev-containers extension with vscode
+
+## Authentication within Docker
+*Once Docker is setup and you are in, you may need to authenticate your GitHub account to retain write perms. This is easily done using the github cli*
+
+```bash
+# within the docker container 
+gh auth login
+```
 
 ## To rebuild the Docker container:
 
