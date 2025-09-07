@@ -144,7 +144,7 @@ docker compose up --build
 
     ```bash 
     docker exec -it driverless-docker-26x-1 /bin/bash
-    ros2 run foxglove_bridge foxglove_bridge
+    ros2 launch foxglove_bridge foxglove_bridge_launch.xml
     ```
 2. In a browser of your choice, go to [app.foxglove.dev](app.foxglove.dev) and make and account / sign in
 3. Open a new connnection to ws://localhost:8765
