@@ -1,7 +1,8 @@
 services:
   26x:
     build: 
-      context: ./
+      context: ./docker/26x
+      dockerfile: Dockerfile
       secrets:
         - github_pat
       args:
@@ -32,6 +33,15 @@ services:
     command: sleep infinity
     stdin_open: true
     tty: true
+    # Uncomment to enable GPU support for training
+    # Note: Requires Nvidia Container Toolkit installed on host
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
   novnc:
     image: theasp/novnc:latest
     environment:
