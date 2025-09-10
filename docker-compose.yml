@@ -17,6 +17,21 @@ services:
       - "8765:8765"
     stdin_open: true
     tty: true
+  ml-dev:
+    build:
+      context: ./docker/ml-dev
+      dockerfile: ml.Dockerfile
+    volumes:
+      - ./ml_data:/root/ml_data
+    environment:
+      - DISPLAY=novnc:0.0
+    networks:
+      - x11
+    ports:
+      - 5001:5000
+    command: sleep infinity
+    stdin_open: true
+    tty: true
   novnc:
     image: theasp/novnc:latest
     environment:

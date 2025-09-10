@@ -1,0 +1,20 @@
+# Core ML
+# torch, torchvison, and torchaudio in base image (add if images switched)
+numpy
+opencv-python-headless
+Pillow
+pycocotools
+
+# Yolo Models
+ultralytics
+
+# Experiment Tracking and Visualization
+mlflow
+matplotlib
+seaborn
+pandas
+tqdm
+
+# Utilities
+ipykernel
+scipy
