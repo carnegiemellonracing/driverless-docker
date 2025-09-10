@@ -8,8 +8,11 @@
 * [What is Docker / Why do we use it?](#what-is-docker--why-do-we-use-it)
 * [Prerequisites](#prerequisites)
 * [To clone the repository](#to-clone-the-repository)
+* [Git Authentication](#authentication)
+    * [Generate a Personal Access Token](#generate-a-personal-access-token)
 * [To build / run the Docker container](#to-build--run-the-docker-container)
     * [Without SLAM Package](#without-slam-package)
+    * [With ML-Dev Container](#with-ml-dev-container)
     * [With SLAM Package](#with-slam-package)
 * [To run scripts from the container (attach interactive shell to container)](#to-run-scripts-from-the-container-attach-interactive-shell-to-container)
 * [To rebuild the Docker container](#to-rebuild-the-docker-container)
@@ -68,20 +71,19 @@ git clone https://github.com/carnegiemellonracing/driverless-docker.git
 
     ![Fine-Grained Token Scopes](Images/fine_grained_scopes.png "Fine-Grained Token Required Scopes")
 
-- Copy the token and export to your terminal where you cloned the repo
-
-    - Copy the token and paste into terminal
-
-    ```bash 
-    # Make sure to paste your token / username instead of the bracketed text
-    export GITHUB_PAT="<YOUR TOKEN HERE>"
-    export GH_USER="<YOUR GITHUB USERNAME>"
-    ```
-
     ![Sample Token Gen Output](Images/sample_token_output.png "Sample output token")
     *don't try this token...*
-    
 
+- Copy the token and export to your terminal where you cloned the driverless-docker repo as a new local variable.
+
+> [!IMPORTANT]
+>   ```bash 
+>   # Make sure to paste your token / username instead of the bracketed text
+>   export GITHUB_PAT="<YOUR TOKEN HERE>"
+>   export GH_USER="<YOUR GITHUB USERNAME>"
+>   ```
+    
+    
 ## To build / run the Docker container:
 
 #### Without SLAM Package or ML-Dev Container
@@ -95,6 +97,11 @@ docker compose up
 cd driverless docker
 docker compose --profile ml-dev up
 ```
+
+> [!TIP]
+> If it doesn't work immediately, try running the compose command with the additional --build flag. 
+>
+> ```bash docker compose --profile ml-dev up --build``` 
 
 #### With SLAM Package
 > [!WARNING]
@@ -162,6 +169,6 @@ docker compose up --build
 1. open a tab in your browser of choice at localhost:8080
 Click on `vnc.html`
     - This opens an Ubuntu desktop
-2. when you run commands with viz, such as `rviz2`, `rqt_graph`, `foxglove`, etc... it will show up in the desktop instance running in the browser tab
+2. when you run commands with viz, such as `rviz2`, `rqt_graph`, etc... it will show up in the desktop instance running in the browser tab
 
 ![RVIZ Viz](Images/rviz.png "Visualizing lidar data in RVIZ2")
