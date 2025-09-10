@@ -19,6 +19,7 @@ services:
     stdin_open: true
     tty: true
   ml-dev:
+    profiles: ["ml-dev"]
     build:
       context: ./docker/ml-dev
       dockerfile: ml.Dockerfile

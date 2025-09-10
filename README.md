@@ -84,10 +84,16 @@ git clone https://github.com/carnegiemellonracing/driverless-docker.git
 
 ## To build / run the Docker container:
 
-#### Without SLAM Package
+#### Without SLAM Package or ML-Dev Container
 ```bash
 cd driverless-docker
 docker compose up
+```
+
+#### With ML-Dev Container
+```bash
+cd driverless docker
+docker compose --profile ml-dev up
 ```
 
 #### With SLAM Package
