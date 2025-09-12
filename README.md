@@ -150,7 +150,13 @@ gh auth login
 docker compose up --build
 ```
 
+## Rosbags
+
+We have a set of starter Rosbags with LiDAR data at the link below. You can download the files and paste them into <path_to_driverless_docker>/rosbags/ to have access in the Docker container. This can be done while the container is running :)
+[CMR drive link](https://drive.google.com/drive/u/0/folders/1oQVOXSc57-ql6duEqETDdyR1RkJkRvlT)
+
 ## Visualization
+
 
 ### Foxglove
 1. Open a terminal and attach to container. Run:
