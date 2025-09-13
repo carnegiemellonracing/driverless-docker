@@ -18,7 +18,7 @@ xhost +local:root
 sudo docker run --rm -it \
   --gpus all \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v $DRIVERLESS/docker/controls-sim/canUsbKvaserTesting/linuxcan:/root/canUsbKvaserTesting/linuxcan \
+  -v $DRIVERLESS_DOCKER/docker/controls-sim/canUsbKvaserTesting/linuxcan:/root/canUsbKvaserTesting/linuxcan \
   -v $HOME/.Xauthority:/root/.Xauthority:ro \
   -e DISPLAY=$DISPLAY \
   -e XAUTHORITY=/root/.Xauthority \
