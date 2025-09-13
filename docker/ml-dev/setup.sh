@@ -4,6 +4,7 @@ set -e
 apt-get update && apt-get install -y --no-install-recommends \
   git \
   vim \
+  libgl1-mesa-glx \
   && rm -rf /var/lib/apt/lists/*
 
 echo "Installing packages"
