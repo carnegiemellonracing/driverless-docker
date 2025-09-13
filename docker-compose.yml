@@ -1,6 +1,6 @@
 services:
   26x:
-    build: 
+    build:
       context: ./docker/26x
       dockerfile: Dockerfile
       secrets:
@@ -58,4 +58,4 @@ networks:
   x11:
 secrets:
   github_pat:
-    environment: GITHUB_PAT
+    environment: GH_PAT
