@@ -23,3 +23,48 @@ $LINUXCAN, $DRIVERLESS, $DRIVERLESS_DOCKER
 to the root directories of those respective folders that you've downloaded / pulled.
 
 Finally, run the build.sh script followed by the spin_up.sh script.
+
+
+### Spinning Up
+
+From driverless-docker/docker/controls-sim, run:
+
+$ sh spin_up.sh
+
+This will place you inside the docker's bash.
+
+Next, run
+
+$ cd ../canUsbKvaserTesting/linuxcan
+
+$ make
+
+$ cd ../../driverless/driverless_ws/
+
+$ ./build_controls.py
+
+This will run. Some warnings may arise, but this is completely fine.
+
+Next, run the following:
+
+$ tmux
+
+Then do <ctrl+b "> so that you can open a new pane right below the current one. You can use <ctrl+b _down arrow_> or <ctrl+b _up arrow_> to move around.
+
+In each terminal, run the following:
+
+$ dv_src
+
+$ vim src/controls/src/nodes/configs/controls_default_config
+
+Edit display_on to true.
+
+Finally, in one window run
+
+$ ros2 run controls controller
+
+In the other, run
+
+$ ros2 run controls controls_test_node
+
+Order does not matter.
