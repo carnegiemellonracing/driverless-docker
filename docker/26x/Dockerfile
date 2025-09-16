@@ -6,7 +6,7 @@ COPY setup.sh /setup.sh
 
 RUN chmod +x /setup.sh
 # run with gtsam for path planning built
-# RUN /setup.sh -p  
+# RUN --mount=type=secret,id=github_pat /setup.sh -p  
 
 # run without gtsam built
 RUN --mount=type=secret,id=github_pat /setup.sh  

@@ -24,17 +24,23 @@
 
 Check out [this](https://docs.google.com/presentation/d/1i58fbb-e5uO1mVOff-ncIiogv28kOKN-KCW4cd_dVA8/edit?usp=sharing) google slide deck for more info (need access to CMR GDrive)
 
-Docker is a way to manage "containers" of software. These "containers" are simply a set of packages and files (could be as simple as a single executable or as complex as an operating system with a Python and c++ installation and various files and programs).
-
-It allows you to quickly get started working with Git, ROS2, CMR Pipelines, etc… Don't have to worry about installing and fixing all of the dependencies!
-
-Essentially, we use Docker for a few reasons:
-
-- Standard development environment
-  - Packages, OS, etc… allows us to run our codebase under a set of “standard conditions”
-  - GitHub Repository (our codebase)
-- Convenience
-  - **You can start a container on your laptop, a random PC, or any other device and have access to the versions, packages, etc… that you need!**
+>[!NOTE]
+><details>
+><summary> Click me to see more! </summary>
+>
+>Docker is a way to manage "containers" of software. These "containers" are simply a set of packages and files (could be as simple as a single executable or as complex as an operating system with a Python and c++ installation and various files and programs).
+>
+>It allows you to quickly get started working with Git, ROS2, CMR Pipelines, etc… Don't have to worry about installing and fixing all of the dependencies!
+>
+>Essentially, we use Docker for a few reasons:
+>
+>  - Standard development environment
+>  - Packages, OS, etc… allows us to run our codebase under a set of “standard conditions”
+>  - GitHub Repository (our codebase)
+> - Convenience
+>  - **You can start a container on your laptop, a random PC, or any other device and have access to the versions, packages, etc… that you need!**
+>
+></details>
 
 ## Prerequisites:
 
@@ -61,32 +67,55 @@ _Now that CMR Driverless is a private repository we need to authenticate via [pe
 
 #### Generate a Personal Access Token
 
+<details>
+<summary>How to generate a token</summary>
+
 - Go to [GitHub](https://github.com/settings/tokens) (GitHub -> Settings -> Developer Settings -> Personal Access Tokens)
 - You can use either Classic or Fine-Grained Tokens. _You may not have access to fine-grained tokens for the CMR organization_
+
+> [!WARNING]
+> Make sure that your token time scope is set less than 365 days. Otherwise it will not work with our CMR organization settings, and not clone the repo correctly.
 
   - Classic: Ensure the following are selected (add write:packages if you have access / need it)
 
   ![Classic Token Scopes](Images/classic_token_scopes.png "Classic Token Required Scopes")
-
-  - Fine-Grained: Ensure the following are selected (add write:packages if you have access / need it)
-
-  ![Fine-Grained Token Resource Owner](Images/fine_grained_resource_owner.png "Fine-Grained Token Resource Owner")
-
-  ![Fine-Grained Token Scopes](Images/fine_grained_scopes.png "Fine-Grained Token Required Scopes")
 
   ![Sample Token Gen Output](Images/sample_token_output.png "Sample output token")
   _don't try this token..._
 
 - Copy the token and export to your terminal where you cloned the driverless-docker repo as a new local variable.
 
-> [!IMPORTANT]
->
-> ```bash
-> # Make sure to paste your token / username instead of the bracketed text
-> export GH_PAT="<YOUR TOKEN HERE>"
-> export GH_USER="<YOUR GITHUB USERNAME>"
-> ```
+</details>
 
+
+
+> [!IMPORTANT]
+> Make sure you follow the next instructions based on your OS
+><details>
+><summary>MACOS / LINUX</summary>
+>
+>```bash
+># Make sure to paste your token / username instead of the >bracketed text
+>export GH_PAT="<YOUR TOKEN HERE>"
+>export GH_USER="<YOUR GITHUB USERNAME>"
+>```
+></details>
+>
+><details>
+><summary>WINDOWS</summary>
+>
+>- create a folder in your `driverless-packages/` folder >with the name `.env`
+>- Use a text editor such as vim, NotePad, or VSCode to add >the following two lines:
+>
+>```bash
+>GH_PAT="<YOUR TOKEN HERE>"
+>GH_USER="<YOUR GITHUB USERNAME>"
+>```
+>
+></details>
+
+
+> 
 ## To build / run the Docker container:
 
 #### Without SLAM Package or ML-Dev Container
@@ -113,17 +142,17 @@ docker compose --profile ml-dev up
 > [!WARNING]
 > This can add 1+ hrs to the container build time. Only proceed if you need to run path planning modules.
 
-1. Using your choice of text editor, open the Dockerfile located in the root directory of this project
-2. Uncomment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L13)
+1. Using your choice of text editor, open the Dockerfile located in the folder `docker/26x`
+2. Uncomment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/docker/26x/Dockerfile#L9)
 
 ```ruby [comment]: <> (this is just for color LOL)
-8 # RUN /setup.sh -p
+9 # RUN --mount=type=secret,id=github_pat /setup.sh -p  
 ```
 
-3. Comment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/Dockerfile#L16-L17)
+3. Comment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/docker/26x/Dockerfile#L12)
 
 ```ruby
-11 RUN /setup.sh
+12 RUN --mount=type=secret,id=github_pat /setup.sh
 ```
 
 <br />
@@ -138,20 +167,26 @@ docker compose up
 
 ## To run scripts from the container (attach interactive shell to container)
 
+>[!IMPORTANT]
+>This will create an interactive terminal and source the configuration script (.bashrc) via /bin/bash. The previous command is to be run on a terminal on your laptop and will give you access to the container. Once you're in, you only need this command again if you're trying to setup another terminal.
+
 ```bash
 docker exec -it driverless-docker-26x-1 /bin/bash
 ```
 
-- Note: Would also run with dev-containers extension with vscode
+> [!NOTE]
+> Install the dev-containers VSCode extension to directly attach your VSCode front end to the docker container!
 
 ## Authentication within Docker
 
-_Once Docker is setup and you are in, you may need to authenticate your GitHub account to retain write perms. This is easily done using the github cli_
+_Once Docker is setup and you are in, you may need to authenticate your GitHub account to retain write perms. This is easily done using the GitHub cli_
 
 ```bash
 # within the docker container
-gh auth login
+root@<123123123> gh auth login
 ```
+
+- select the HTTPS option and follow the prompts to authenticate via the weblink
 
 ## To rebuild the Docker container:
 
