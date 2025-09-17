@@ -26,10 +26,11 @@ We have two extremely useful debugging tools hooked up to the docker containers.
 ## Setting up Foxglove
 
 1. Run the Foxglove "bridge" package (takes ROS2 topics and bundles them via websocket to Foxglove frontend)
-<details>
-<summary>If you don't have / want VSCode setup<summary>
 
-1. Open a terminal and attach to container. Run:
+<details>
+<summary>If you don't have / want VSCode setup</summary>
+
+Open a terminal and attach to container. Run:
 
 ```bash
 $ docker exec -it driverless-docker-26x-1 /bin/bash
@@ -38,18 +39,15 @@ $ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 </details>
 
 <details>
-<summary>If you have VSCode set up<summary>
+<summary>If you have VSCode set up</summary>
 
-1. Open a terminal in VSCode. Run:
-
-> [!IMPORTANT]
-> You should already be in the container because you launched from VSCode. If you want 
-
+Open a terminal in VSCode. Run:
 ```bash
 $ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```
 
-> [!NOTE]
+> Note:
+> - You should already be in the container because you launched from VSCode. If you want 
 > - This will now run a ROS node in the terminal. Don't close the terminal or shut it off or you'll lose the connection
 > - Errors in this terminal aren't usually indicitive of a major problem
 
