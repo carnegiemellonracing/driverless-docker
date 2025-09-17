@@ -42,15 +42,15 @@ $ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 
 1. Open a terminal in VSCode. Run:
 
->[!IMPORTANT]
+> [!IMPORTANT]
 > You should already be in the container because you launched from VSCode. If you want 
 
 ```bash
 $ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```
 
->[!NOTE]
->- This will now run a ROS node in the terminal. Don't close the terminal or shut it off or you'll lose the connection
+> [!NOTE]
+> - This will now run a ROS node in the terminal. Don't close the terminal or shut it off or you'll lose the connection
 > - Errors in this terminal aren't usually indicitive of a major problem
 
 </details>
