@@ -20,6 +20,9 @@ set -e
 apt update
 apt install -y git gh vim python3-pip locales curl tmux
 
+curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~.git-completion.bash
+
+
 #------------------------------------------------->
 #-----------------------OLD------------------------
 #<-------------------------------------------------
@@ -93,6 +96,10 @@ shopt -s histappend
 # Optional: Configure history size
 export HISTSIZE=10000 # Number of commands to remember in the history list
 export HISTFILESIZE=20000 # Maximum size of the history file in lines
+
+if [ -f ~/.git-completion.bash ]; then      
+    . ~/.git-completion.bash
+fi
 
 EOF
 
