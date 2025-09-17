@@ -1,4 +1,6 @@
-# driverless-docker
+# Carnegie Mellon Racing Driverless Docker Environment Setup
+
+Learn more about CMR [here](https://cmr.red/driverless/driverless-docs/build/html/index.html).
 
 > [!NOTE]
 > If you have issues in any step of the following procedure, please check [issues that have already been solved](https://github.com/carnegiemellonracing/driverless-docker/issues?q=is%3Aissue)
@@ -118,15 +120,21 @@ _Now that CMR Driverless is a private repository we need to authenticate via [pe
 > 
 ## To build / run the Docker container:
 
-#### Without SLAM Package or ML-Dev Container
+#### Base Installation
+*without ML-Dev or SLAM Packages*
 
 ```bash
 cd driverless-docker
 docker compose up
 ```
 
+> [!NOTE]
+> run `docker compose up -d` if you want to run the node in detached mode in the background. You can always turn it off from docker desktop, VSCode, or the CLI.
+
 #### With ML-Dev Container
 
+<details>
+<summary>Running with ML Development container</summary>
 ```bash
 cd driverless docker
 docker compose --profile ml-dev up
@@ -137,22 +145,27 @@ docker compose --profile ml-dev up
 >
 > `bash docker compose --profile ml-dev up --build`
 
+</details>
+
 #### With SLAM Package
 
 > [!WARNING]
 > This can add 1+ hrs to the container build time. Only proceed if you need to run path planning modules.
 
+<details>
+<summary>Running With SLAM Packages</summary>
+
 1. Using your choice of text editor, open the Dockerfile located in the folder `docker/26x`
 2. Uncomment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/docker/26x/Dockerfile#L9)
 
 ```ruby [comment]: <> (this is just for color LOL)
-9 # RUN --mount=type=secret,id=github_pat /setup.sh -p  
+9 RUN --mount=type=secret,id=github_pat /setup.sh -p  
 ```
 
 3. Comment out the following [line](https://github.com/carnegiemellonracing/driverless-docker/blob/main/docker/26x/Dockerfile#L12)
 
 ```ruby
-12 RUN --mount=type=secret,id=github_pat /setup.sh
+12 # RUN --mount=type=secret,id=github_pat /setup.sh
 ```
 
 <br />
@@ -161,9 +174,8 @@ docker compose --profile ml-dev up
 cd driverless-docker
 docker compose up
 ```
+</details>
 
-> [!NOTE]
-> run `docker compose up -d` if you want to run the node in detached mode in the background. You can always turn it off from docker desktop, VSCode, or the CLI.
 
 ## To run scripts from the container (attach interactive shell to container)
 
@@ -204,25 +216,5 @@ We have a set of starter Rosbags with LiDAR data at the link below. You can down
 
 ## Visualization
 
-### Foxglove
+See the [visualization tutorial here](RUN_ROSBAGS.md)
 
-1. Open a terminal and attach to container. Run:
-
-   ```bash
-   docker exec -it driverless-docker-26x-1 /bin/bash
-   ros2 launch foxglove_bridge foxglove_bridge_launch.xml
-   ```
-
-2. In a browser of your choice, go to [app.foxglove.dev](app.foxglove.dev) and make and account / sign in
-3. Open a new connnection to ws://localhost:8765
-4. Do stuff!
-
-![Foxglove Viz](Images/foxglove.png "Visualizing lidar data in Foxglove")
-
-### RVIZ / RQT_GRAPH / Desktop-related stuff, e.g., matplotlib...
-
-1. open a tab in your browser of choice at localhost:8080
-   Click on `vnc.html` - This opens an Ubuntu desktop
-2. when you run commands with viz, such as `rviz2`, `rqt_graph`, etc... it will show up in the desktop instance running in the browser tab
-
-![RVIZ Viz](Images/rviz.png "Visualizing lidar data in RVIZ2")
