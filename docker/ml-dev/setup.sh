@@ -1,15 +1,6 @@
 #!/bin/bash
 set -e
 
-apt-get update && apt-get install -y --no-install-recommends \
-  git \
-  vim \
-  libgl1-mesa-glx \
-  && rm -rf /var/lib/apt/lists/*
-
-echo "Installing packages"
-pip install --no-cache-dir -r ml_requirements.txt
-
 echo "Clone YOLO project repository"
 git clone https://github.com/carnegiemellonracing/driverless-ml-dev.git /root/driverless-ml-dev
 
