@@ -5,7 +5,7 @@
 
 ## What / How are we Visualizing?
 
-We have two extremely useful debugging tools hooked up to the docker containers. Each has different uses:
+We have two extremely useful debugging tools hooked up to the docker containers for your convenience. Each has different uses:
 
 1. Full desktop emulator; this looks and functions like a desktop GUI
 
@@ -28,7 +28,7 @@ We have two extremely useful debugging tools hooked up to the docker containers.
 1. Run the Foxglove "bridge" package (takes ROS2 topics and bundles them via websocket to Foxglove frontend)
 
 <details>
-<summary>If you don't have / want VSCode setup</summary>
+<summary>If you don't have / want VSCode setup [CLICK ME]</summary>
 
 Open a terminal and attach to container. Run:
 
@@ -39,7 +39,7 @@ $ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 </details>
 
 <details>
-<summary>If you have VSCode set up</summary>
+<summary>If you have VSCode set up [CLICK ME]</summary>
 
 Open a terminal in VSCode. Run:
 ```bash
@@ -53,7 +53,11 @@ $ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 
 </details>
 
-2. In a browser of your choice, go to [app.foxglove.dev](app.foxglove.dev) and make an account / sign in
+
+> [!WARNING]
+> Make sure you connect with the Foxglove Websocket Protocol when you open your new connection in step 3. If you select ROS2 or something else Foxglove won't know how to interpret the incoming messages and will show an error.
+
+2. In a browser of your choice, go to [app.foxglove.dev](https://app.foxglove.dev) and make an account / sign in
 3. Open a new connnection to ws://localhost:8765
 4. Do stuff!
 
