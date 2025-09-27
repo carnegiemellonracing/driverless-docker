@@ -106,7 +106,7 @@ _Now that CMR Driverless is a private repository we need to authenticate via [pe
 ><details>
 ><summary>WINDOWS</summary>
 >
->- create a text file in your `driverless-packages/` folder >with the name `.env`
+>- create a text file in your `driverless-docker/` folder >with the name `.env`
 >- Use a text editor such as vim, NotePad, or VSCode to add >the following two lines:
 >
 >```bash
