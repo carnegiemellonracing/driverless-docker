@@ -59,7 +59,7 @@ RUN apt update && apt install -y \
 
 # ==== SET UP WORKING DIRECTORY ====
 WORKDIR /root/driverless/
-COPY ./tmp_driverless_ws/ /root/driverless/driverless_ws/
+# COPY ./tmp_driverless_ws/ /root/driverless/driverless_ws/
 
 # ==== SET UP LIBRARIES ====
 
@@ -70,7 +70,7 @@ RUN apt update && apt -y install libgsl-dev
 
 RUN mkdir /root/canUsbKvaserTesting/
 RUN mkdir /root/canUsbKvaserTesting/linuxcan/
-COPY ./canUsbKvaserTesting/linuxcan/ /root/canUsbKvaserTesting/linuxcan/
+# COPY ./canUsbKvaserTesting/linuxcan/ /root/canUsbKvaserTesting/linuxcan/
 
 
 # ==== SET UP ENV VARIABLES ====
