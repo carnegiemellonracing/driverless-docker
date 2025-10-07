@@ -4,12 +4,5 @@
 # from the home folder, that would be great :)
 
 # But for now, we use the janky solution:
-docker_root_path="$DRIVERLESS_DOCKER/docker/controls-sim"
-
-rm -rf "$docker_root_path/tmp_driverless_ws"
-cp -r "$DRIVERLESS/driverless_ws" "$docker_root_path/tmp_driverless_ws"
-
-rm -rf "$docker_root_path/canUsbKvaserTesting"
-cp -r "$LINUXCAN/" "$docker_root_path/canUsbKvaserTesting"
 
 sudo docker build --platform linux -t controls-sim .
