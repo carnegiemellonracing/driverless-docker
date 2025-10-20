@@ -55,6 +55,9 @@ curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-com
 
 apt install -y ros-dev-tools ros-humble-tf-transformations libeigen3-dev libgsl-dev
 
+# rosbag mcap storage plugin
+apt install -y ros-humble-rosbag2-storage-mcap
+
 # Foxglove bridge
 apt install -y ros-humble-foxglove-bridge
 
