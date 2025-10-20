@@ -1,6 +1,6 @@
 # Core ML
 # torch, torchvison, and torchaudio in base image (add if images switched)
-numpy
+numpy<2.0
 opencv-python-headless
 Pillow
 pycocotools

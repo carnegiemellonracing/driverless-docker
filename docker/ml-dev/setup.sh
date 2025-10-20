@@ -1,16 +1,11 @@
 #!/bin/bash
 set -e
 
-apt-get update && apt-get install -y --no-install-recommends \
-  git \
-  vim \
-  libgl1-mesa-glx \
-  && rm -rf /var/lib/apt/lists/*
-
-echo "Installing packages"
-pip install --no-cache-dir -r ml_requirements.txt
+apt install -y git gh vim python3-pip tmux curl
+curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~.git-completion.bash
 
 echo "Clone YOLO project repository"
 git clone https://github.com/carnegiemellonracing/driverless-ml-dev.git /root/driverless-ml-dev
+
 
 echo "ML Environment Setup Complete"
