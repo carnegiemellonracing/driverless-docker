@@ -1,8 +1,8 @@
 # Core ML
 # torch, torchvison, and torchaudio in base image (add if images switched)
 numpy<2.0
-opencv-python-headless
-Pillow
+opencv-python
+pillow
 pycocotools
 
 # Yolo Models
@@ -14,6 +14,7 @@ matplotlib
 seaborn
 pandas
 tqdm
+pyyaml
 
 # Utilities
 ipykernel

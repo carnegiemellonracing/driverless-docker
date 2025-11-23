@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 
 COPY ml_requirements.txt .
+RUN pip uninstall -y opencv-python opencv-python-headless opencv numpy || true && \
+    rm -rf /usr/local/lib/python3.10/dist-packages/cv2 && \
+    rm -rf /usr/local/lib/python3.10/dist-packages/opencv*
 RUN pip install --no-cache-dir -r ml_requirements.txt
 
 COPY setup.sh .

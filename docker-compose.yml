@@ -25,6 +25,7 @@ services:
       dockerfile: ml.Dockerfile
     volumes:
       - ./ml_data:/root/driverless-ml-dev/ml_data
+      - ~/.gitconfig:/root/.gitconfig:ro
     environment:
       - DISPLAY=novnc:0.0
     networks:
