@@ -80,6 +80,8 @@ ENV AMENT_PREFIX_PATH="/root/driverless/driverless_ws/install/controls:/root/dri
 
 ENV LINUXCAN_PATH="/root/canUsbKvaserTesting/linuxcan"
 ENV DRIVERLESS="/root/driverless/"
+ENV CONTROLLER_CONFIGS="/root/driverless/driverless_ws/src/controls/configs/controller"
+ENV CONTROLS_SIM_CONFIGS="/root/driverless/driverless_ws/src/controls/configs/simulator"
 RUN echo "export LD_LIBRARY_PATH=$LINUXCAN_PATH/canlib:$LD_LIBRARY_PATH" >> /root/.bashrc
 ENV ROS_LOG_DIR=/root/driverless/logs/
 
