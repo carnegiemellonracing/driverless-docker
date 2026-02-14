@@ -84,6 +84,9 @@ fi
 # Clone driverless repo
 git clone --recurse-submodules https://$GITHUB_USERNAME:$(cat /run/secrets/github_pat)@github.com/carnegiemellonracing/driverless.git
 cd driverless/driverless_ws
+git remote rm origin
+git remote add origin https://github.com/carnegiemellonracing/driverless.git
+
 
 source /opt/ros/humble/setup.bash
 echo "cd /root" >> ~/.bashrc
