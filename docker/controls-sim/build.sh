@@ -1,3 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+
+# Ensure we build from this script's directory (Docker context)
+cd "$(dirname "$0")"
+
 # Unfortunately one of the more tragic Docker philosophies is its very very robust "context"
 # The only solution I could find was to copy these required folders into the context
 # If anyone can debug the Dockerfile to support building docker images from outside the context/

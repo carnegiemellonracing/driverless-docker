@@ -45,8 +45,9 @@ RUN apt update && apt install -y \
 
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 
-# ==== NVIDIA OpenGL / GLVND ====
-
+# ==== NVIDIA OpenGL / GLVND + Headless Xorg ====
+# NOTE: Do NOT install xserver-xorg-video-nvidia here; it can mismatch the host driver.
+# The NVIDIA container runtime injects the correct user-space libs.
 RUN apt update && apt install -y \
     libgl1-mesa-glx \
     libglvnd0 \
@@ -54,8 +55,12 @@ RUN apt update && apt install -y \
     libegl1 \
     libgles2 \
     libgl1 \
+    xorg \
+    xserver-xorg-core \
+    x11-utils \
     mesa-utils \
     && rm -rf /var/lib/apt/lists/*
+
 
 # ==== SET UP WORKING DIRECTORY ====
 WORKDIR /root/driverless/
@@ -88,5 +93,3 @@ ENV ROS_LOG_DIR=/root/driverless/logs/
 # ==== USEFUL ALIASES ====
 
 RUN echo "alias dv_src=\"source /root/driverless/driverless_ws/install/setup.bash\"" >> /root/.bashrc
-
-
