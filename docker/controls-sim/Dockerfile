@@ -55,9 +55,11 @@ RUN apt update && apt install -y \
     libegl1 \
     libgles2 \
     libgl1 \
+    xauth \
     xorg \
     xserver-xorg-core \
     x11-utils \
+    xvfb \
     mesa-utils \
     && rm -rf /var/lib/apt/lists/*
 
