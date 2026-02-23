@@ -220,6 +220,13 @@ def _run_single(
     ros_domain_id = args.base_ros_domain_id + run_idx
     env = os.environ.copy()
     env["ROS_DOMAIN_ID"] = str(ros_domain_id)
+    linuxcan_lib = "/root/canUsbKvaserTesting/linuxcan/canlib"
+    existing_ld_path = env.get("LD_LIBRARY_PATH", "")
+    if existing_ld_path:
+        if linuxcan_lib not in existing_ld_path.split(":"):
+            env["LD_LIBRARY_PATH"] = f"{linuxcan_lib}:{existing_ld_path}"
+    else:
+        env["LD_LIBRARY_PATH"] = linuxcan_lib
 
     source_prefix = (
         "source /opt/ros/humble/setup.bash "

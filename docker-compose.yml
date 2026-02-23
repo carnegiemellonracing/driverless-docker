@@ -55,8 +55,10 @@ services:
     volumes:
       - ${DRIVERLESS}:/root/driverless
       - ./docker/harness:/root/harness
+      - ${LIBS}/canUsbKvaserTesting/linuxcan:/root/canUsbKvaserTesting/linuxcan
     environment:
       - NVIDIA_DRIVER_CAPABILITIES=all
+      - LD_LIBRARY_PATH=/root/canUsbKvaserTesting/linuxcan/canlib
     working_dir: /root/harness
     command: sleep infinity
     stdin_open: true

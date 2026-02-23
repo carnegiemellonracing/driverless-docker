@@ -83,6 +83,7 @@ ENV CMAKE_PREFIX_PATH="/root/driverless/driverless_ws/install/controls:/root/dri
 ENV AMENT_PREFIX_PATH="/root/driverless/driverless_ws/install/controls:/root/driverless/driverless_ws/install/interfaces:/opt/ros/humble"
 
 ENV LINUXCAN_PATH="/root/canUsbKvaserTesting/linuxcan"
+ENV LD_LIBRARY_PATH="/root/canUsbKvaserTesting/linuxcan/canlib:${LD_LIBRARY_PATH}"
 ENV DRIVERLESS="/root/driverless/"
 ENV CONTROLLER_CONFIGS="/root/driverless/driverless_ws/src/controls/configs/controller"
 ENV CONTROLS_SIM_CONFIGS="/root/driverless/driverless_ws/src/controls/configs/simulator"
