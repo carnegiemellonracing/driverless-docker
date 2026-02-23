@@ -100,6 +100,12 @@ def _write_yaml(path: Path, payload: dict[str, Any]) -> None:
         yaml.safe_dump(payload, f, sort_keys=False)
 
 
+def _truncate_file(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8"):
+        pass
+
+
 def _register_proc(proc: subprocess.Popen[str]) -> None:
     with _RUNNING_PROCS_LOCK:
         _RUNNING_PROCS.add(proc)
@@ -217,9 +223,6 @@ def _run_single(
     generated_dir = run_dir / "generated_configs"
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    progress_prefix = f"[{run_idx + 1}/{args.total_runs}] {run_spec.progress_label}"
-    _log(f"{progress_prefix} START")
-
     controller_cfg = _load_yaml(run_spec.controller_config)
     sim_cfg = _load_yaml(run_spec.sim_config)
 
@@ -230,6 +233,11 @@ def _run_single(
     midline_log_path = run_dir / "midline_deviation_summary.csv"
     track_log_path = run_dir / "track_times.log"
     collisions_log_path = run_dir / "collisions.log"
+
+    # Reset metric artifacts for this run. Sim only writes lap/collision logs if files already exist.
+    _truncate_file(midline_log_path)
+    _truncate_file(track_log_path)
+    _truncate_file(collisions_log_path)
 
     controller_params["midline_deviation_log_file"] = str(midline_log_path)
     sim_params["track_time_log_file_path"] = str(track_log_path)
@@ -242,6 +250,17 @@ def _run_single(
             controller_params["display_on"] = False
         if "testing_on_controls_sim" in controller_params:
             controller_params["testing_on_controls_sim"] = True
+
+    progress_prefix = f"[{run_idx + 1}/{args.total_runs}] {run_spec.progress_label}"
+    configured_track = str(sim_params.get("track_specs_file_path", "unknown"))
+    configured_max_laps = sim_params.get("max_laps", "unknown")
+    configured_dynamics = str(sim_params.get("dynamics_model", "unknown"))
+    configured_follow_midline = controller_params.get("follow_midline_only", "unknown")
+    _log(
+        f"{progress_prefix} START track={Path(configured_track).name} "
+        f"max_laps={configured_max_laps} sim_model={configured_dynamics} "
+        f"follow_midline_only={configured_follow_midline}"
+    )
 
     generated_controller = generated_dir / "controller.generated.yaml"
     generated_sim = generated_dir / "sim.generated.yaml"
@@ -361,7 +380,10 @@ def _run_single(
     midline_rows, midline_final = _parse_midline(midline_log_path)
 
     duration_sec = time.time() - start_wall
-    _log(f"{progress_prefix} END status={status} elapsed={duration_sec:.1f}s laps={len(lap_times)}")
+    _log(
+        f"{progress_prefix} END status={status} elapsed={duration_sec:.1f}s "
+        f"laps={len(lap_times)} max_laps={configured_max_laps} midline_rows={midline_rows}"
+    )
 
     return {
         "name": run_spec.name,
@@ -377,6 +399,8 @@ def _run_single(
         "ros_domain_id": ros_domain_id,
         "status": status,
         "error": error,
+        "configured_track": configured_track,
+        "configured_max_laps": configured_max_laps,
         "sim_exit_code": sim_exit_code,
         "controller_exit_code": controller_exit_code,
         "duration_sec": round(duration_sec, 3),
