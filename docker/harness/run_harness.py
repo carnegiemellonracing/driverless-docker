@@ -31,14 +31,25 @@ LAP_REGEX = re.compile(r"Lap:(\d+):([0-9eE+\-.]+)")
 _STOP_EVENT = threading.Event()
 _RUNNING_PROCS: set[subprocess.Popen[str]] = set()
 _RUNNING_PROCS_LOCK = threading.Lock()
+_PRINT_LOCK = threading.Lock()
 
 
 @dataclass
 class RunSpec:
     name: str
+    progress_label: str
+    base_name: str
+    repeat_index: int
+    repeat_total: int
     controller_config: Path
     sim_config: Path
     timeout_sec: int
+
+
+def _log(msg: str, *, err: bool = False) -> None:
+    with _PRINT_LOCK:
+        stream = sys.stderr if err else sys.stdout
+        print(msg, file=stream, flush=True)
 
 
 def _safe_name(name: str) -> str:
@@ -206,6 +217,9 @@ def _run_single(
     generated_dir = run_dir / "generated_configs"
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    progress_prefix = f"[{run_idx + 1}/{args.total_runs}] {run_spec.progress_label}"
+    _log(f"{progress_prefix} START")
+
     controller_cfg = _load_yaml(run_spec.controller_config)
     sim_cfg = _load_yaml(run_spec.sim_config)
 
@@ -268,6 +282,7 @@ def _run_single(
     controller_proc: subprocess.Popen[str] | None = None
 
     deadline = time.monotonic() + run_spec.timeout_sec
+    last_progress_log = time.monotonic()
 
     try:
         if _STOP_EVENT.is_set():
@@ -310,6 +325,13 @@ def _run_single(
                     error = f"timeout after {run_spec.timeout_sec}s"
                     break
 
+                now = time.monotonic()
+                if (now - last_progress_log) >= args.progress_interval_sec:
+                    elapsed_sec = time.time() - start_wall
+                    remaining_sec = max(0.0, deadline - now)
+                    _log(f"{progress_prefix} RUNNING elapsed={elapsed_sec:.1f}s remaining={remaining_sec:.1f}s")
+                    last_progress_log = now
+
                 time.sleep(0.25)
 
         # Simulator finished or we aborted/failed; terminate any remaining subprocesses.
@@ -339,9 +361,14 @@ def _run_single(
     midline_rows, midline_final = _parse_midline(midline_log_path)
 
     duration_sec = time.time() - start_wall
+    _log(f"{progress_prefix} END status={status} elapsed={duration_sec:.1f}s laps={len(lap_times)}")
 
     return {
         "name": run_spec.name,
+        "progress_label": run_spec.progress_label,
+        "base_name": run_spec.base_name,
+        "repeat_index": run_spec.repeat_index,
+        "repeat_total": run_spec.repeat_total,
         "run_dir": str(run_dir),
         "controller_config": str(run_spec.controller_config),
         "sim_config": str(run_spec.sim_config),
@@ -375,13 +402,16 @@ def _load_manifest(path: Path, args: argparse.Namespace) -> list[RunSpec]:
         raise RuntimeError("Manifest 'defaults' must be a mapping")
 
     default_timeout = int(defaults.get("timeout_sec", args.default_timeout_sec))
+    default_repeat = int(defaults.get("repeat", 1))
+    if default_repeat <= 0:
+        raise RuntimeError("defaults.repeat must be > 0")
 
     out: list[RunSpec] = []
     for idx, run in enumerate(runs):
         if not isinstance(run, dict):
             raise RuntimeError(f"runs[{idx}] must be a mapping")
 
-        name = str(run.get("name") or f"run_{idx}")
+        base_name = str(run.get("name") or f"run_{idx}")
 
         try:
             controller_config = str(run["controller_config"])
@@ -392,6 +422,10 @@ def _load_manifest(path: Path, args: argparse.Namespace) -> list[RunSpec]:
         timeout_sec = int(run.get("timeout_sec", default_timeout))
         if timeout_sec <= 0:
             raise RuntimeError(f"runs[{idx}] timeout_sec must be > 0")
+
+        repeat_count = args.repeat if args.repeat is not None else int(run.get("repeat", default_repeat))
+        if repeat_count <= 0:
+            raise RuntimeError(f"runs[{idx}] repeat must be > 0")
 
         manifest_dir = path.parent.resolve()
         workspace = Path(args.workspace).resolve()
@@ -404,14 +438,26 @@ def _load_manifest(path: Path, args: argparse.Namespace) -> list[RunSpec]:
         if not sim_path.exists():
             raise RuntimeError(f"Sim config does not exist: {sim_path}")
 
-        out.append(
-            RunSpec(
-                name=name,
-                controller_config=controller_path,
-                sim_config=sim_path,
-                timeout_sec=timeout_sec,
+        for rep in range(1, repeat_count + 1):
+            if repeat_count == 1:
+                expanded_name = base_name
+                progress_label = base_name
+            else:
+                expanded_name = f"{base_name}__r{rep:02d}"
+                progress_label = f"{base_name} [{rep}/{repeat_count}]"
+
+            out.append(
+                RunSpec(
+                    name=expanded_name,
+                    progress_label=progress_label,
+                    base_name=base_name,
+                    repeat_index=rep,
+                    repeat_total=repeat_count,
+                    controller_config=controller_path,
+                    sim_config=sim_path,
+                    timeout_sec=timeout_sec,
+                )
             )
-        )
 
     return out
 
@@ -427,6 +473,9 @@ def _write_summary(results: list[dict[str, Any]], output_dir: Path) -> tuple[Pat
 
     fieldnames = [
         "name",
+        "base_name",
+        "repeat_index",
+        "repeat_total",
         "status",
         "error",
         "ros_domain_id",
@@ -454,6 +503,9 @@ def _write_summary(results: list[dict[str, Any]], output_dir: Path) -> tuple[Pat
             writer.writerow(
                 {
                     "name": result.get("name"),
+                    "base_name": result.get("base_name"),
+                    "repeat_index": result.get("repeat_index"),
+                    "repeat_total": result.get("repeat_total"),
                     "status": result.get("status"),
                     "error": result.get("error"),
                     "ros_domain_id": result.get("ros_domain_id"),
@@ -496,7 +548,7 @@ def _install_signal_handlers() -> dict[int, Any]:
     def _handle_signal(signum: int, _frame: Any) -> None:
         if not _STOP_EVENT.is_set():
             signame = signal.Signals(signum).name
-            print(f"Received {signame}. Stopping harness and terminating child processes...", file=sys.stderr)
+            _log(f"Received {signame}. Stopping harness and terminating child processes...", err=True)
         _STOP_EVENT.set()
         _terminate_all_running_processes()
 
@@ -526,10 +578,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-ros-domain-id", type=int, default=70, help="Base ROS_DOMAIN_ID for run isolation")
     parser.add_argument("--default-timeout-sec", type=int, default=600, help="Default per-run timeout")
     parser.add_argument(
+        "--repeat",
+        type=int,
+        default=None,
+        help="Override repeat count for every run in the manifest",
+    )
+    parser.add_argument(
         "--controller-start-delay-sec",
         type=float,
         default=1.0,
         help="Delay between launching sim and controller",
+    )
+    parser.add_argument(
+        "--progress-interval-sec",
+        type=float,
+        default=5.0,
+        help="Progress heartbeat interval while a run is active",
     )
     parser.add_argument(
         "--force-sim-safe-controller",
@@ -550,12 +614,18 @@ def main() -> int:
     args = parse_args()
 
     if args.parallelism <= 0:
-        print("--parallelism must be > 0", file=sys.stderr)
+        _log("--parallelism must be > 0", err=True)
+        return 2
+    if args.repeat is not None and args.repeat <= 0:
+        _log("--repeat must be > 0", err=True)
+        return 2
+    if args.progress_interval_sec <= 0.0:
+        _log("--progress-interval-sec must be > 0", err=True)
         return 2
 
     manifest_path = Path(args.manifest).resolve()
     if not manifest_path.exists():
-        print(f"Manifest not found: {manifest_path}", file=sys.stderr)
+        _log(f"Manifest not found: {manifest_path}", err=True)
         return 2
 
     results_dir = Path(args.results_dir).resolve()
@@ -564,13 +634,14 @@ def main() -> int:
     previous_handlers = _install_signal_handlers()
     try:
         run_specs = _load_manifest(manifest_path, args)
-        print(f"Loaded {len(run_specs)} run specs from {manifest_path}")
+        args.total_runs = len(run_specs)
+        _log(f"Loaded {len(run_specs)} run specs from {manifest_path}")
 
         if _STOP_EVENT.is_set():
             return 130
 
         if args.build:
-            print("Building controls workspace before benchmark run...")
+            _log("Building controls workspace before benchmark run...")
             _build_workspace(Path(args.workspace).resolve(), results_dir)
 
         results: list[dict[str, Any] | None] = [None] * len(run_specs)
@@ -588,6 +659,9 @@ def main() -> int:
                 except CancelledError:
                     result = {
                         "name": run_specs[idx].name,
+                        "base_name": run_specs[idx].base_name,
+                        "repeat_index": run_specs[idx].repeat_index,
+                        "repeat_total": run_specs[idx].repeat_total,
                         "status": "aborted",
                         "error": "Cancelled",
                         "lap_count": 0,
@@ -596,6 +670,9 @@ def main() -> int:
                 except Exception as exc:
                     result = {
                         "name": run_specs[idx].name,
+                        "base_name": run_specs[idx].base_name,
+                        "repeat_index": run_specs[idx].repeat_index,
+                        "repeat_total": run_specs[idx].repeat_total,
                         "status": "failed",
                         "error": str(exc),
                         "lap_count": 0,
@@ -603,10 +680,6 @@ def main() -> int:
                     }
 
                 results[idx] = result
-                print(
-                    f"[{idx + 1}/{len(run_specs)}] {result.get('name')}: {result.get('status')} "
-                    f"(laps={result.get('lap_count')}, best={result.get('best_lap_sec')})"
-                )
 
                 if _STOP_EVENT.is_set():
                     for pending in futures:
@@ -616,8 +689,8 @@ def main() -> int:
         completed_results = [r for r in results if r is not None]
         if completed_results:
             summary_json, summary_csv = _write_summary(completed_results, results_dir)
-            print(f"Wrote summary JSON: {summary_json}")
-            print(f"Wrote summary CSV:  {summary_csv}")
+            _log(f"Wrote summary JSON: {summary_json}")
+            _log(f"Wrote summary CSV:  {summary_csv}")
 
         if _STOP_EVENT.is_set():
             return 130
@@ -628,10 +701,10 @@ def main() -> int:
     except KeyboardInterrupt:
         _STOP_EVENT.set()
         _terminate_all_running_processes()
-        print("Harness interrupted. Child processes terminated.", file=sys.stderr)
+        _log("Harness interrupted. Child processes terminated.", err=True)
         return 130
     except Exception as exc:
-        print(f"Harness failed: {exc}", file=sys.stderr)
+        _log(f"Harness failed: {exc}", err=True)
         return 1
     finally:
         _STOP_EVENT.set()
