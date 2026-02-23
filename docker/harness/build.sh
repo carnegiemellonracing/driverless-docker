@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")/../.."
-docker compose --profile harness build harness
+
+# Ensure we build from this script's directory (Docker context)
+cd "$(dirname "$0")"
+
+# Keep this aligned with docker/controls-sim/build.sh behavior.
+sudo docker build --platform linux -t harness .
