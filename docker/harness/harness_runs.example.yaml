@@ -1,0 +1,12 @@
+defaults:
+  timeout_sec: 600
+
+runs:
+  - name: conf1_sim1
+    controller_config: /root/driverless/driverless_ws/src/controls/configs/controller/conf1.yaml
+    sim_config: /root/driverless/driverless_ws/src/controls/configs/simulator/sim1.yaml
+
+  # Add more runs as needed.
+  # - name: first_run_straight
+  #   controller_config: /root/driverless/driverless_ws/src/controls/configs/controller/first_run.yaml
+  #   sim_config: /root/driverless/driverless_ws/src/controls/configs/simulator/straight_sim.yaml

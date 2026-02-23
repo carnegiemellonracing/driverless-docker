@@ -18,6 +18,7 @@ services:
       - "8765:8765"
     stdin_open: true
     tty: true
+
   ml-dev:
     profiles: ["ml-dev"]
     build:
@@ -44,6 +45,23 @@ services:
     #         - driver: nvidia
     #           count: all
     #           capabilities: [gpu]
+
+  harness:
+    profiles: ["harness"]
+    build:
+      context: ./docker/harness
+      dockerfile: Dockerfile
+    gpus: all
+    volumes:
+      - ${DRIVERLESS}:/root/driverless
+      - ./docker/harness:/root/harness
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    working_dir: /root/harness
+    command: sleep infinity
+    stdin_open: true
+    tty: true
+
   novnc:
     image: theasp/novnc:latest
     environment:
@@ -55,8 +73,10 @@ services:
       - "8080:8080"
     networks:
       - x11
+
 networks:
   x11:
+
 secrets:
   github_pat:
     environment: GH_PAT
