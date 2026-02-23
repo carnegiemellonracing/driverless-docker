@@ -17,8 +17,9 @@ import shlex
 import signal
 import subprocess
 import sys
+import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import CancelledError, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,10 @@ from typing import Any
 import yaml
 
 LAP_REGEX = re.compile(r"Lap:(\d+):([0-9eE+\-.]+)")
+
+_STOP_EVENT = threading.Event()
+_RUNNING_PROCS: set[subprocess.Popen[str]] = set()
+_RUNNING_PROCS_LOCK = threading.Lock()
 
 
 @dataclass
@@ -84,18 +89,26 @@ def _write_yaml(path: Path, payload: dict[str, Any]) -> None:
         yaml.safe_dump(payload, f, sort_keys=False)
 
 
-def _run_cmd(cmd: str, env: dict[str, str], log_path: Path) -> subprocess.Popen[str]:
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    log_file = log_path.open("w", encoding="utf-8")
+def _register_proc(proc: subprocess.Popen[str]) -> None:
+    with _RUNNING_PROCS_LOCK:
+        _RUNNING_PROCS.add(proc)
+
+
+def _unregister_proc(proc: subprocess.Popen[str]) -> None:
+    with _RUNNING_PROCS_LOCK:
+        _RUNNING_PROCS.discard(proc)
+
+
+def _run_cmd(cmd: str, env: dict[str, str]) -> subprocess.Popen[str]:
     proc = subprocess.Popen(
         ["/bin/bash", "-lc", cmd],
-        stdout=log_file,
-        stderr=subprocess.STDOUT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         env=env,
         preexec_fn=os.setsid,
         text=True,
     )
-    proc._harness_log_file = log_file  # type: ignore[attr-defined]
+    _register_proc(proc)
     return proc
 
 
@@ -128,24 +141,28 @@ def _terminate_process(proc: subprocess.Popen[str], grace_sec: float = 10.0) -> 
             pass
 
 
-def _close_log(proc: subprocess.Popen[str]) -> None:
-    log_file = getattr(proc, "_harness_log_file", None)
-    if log_file is not None:
-        log_file.close()
+def _terminate_all_running_processes() -> None:
+    with _RUNNING_PROCS_LOCK:
+        procs = list(_RUNNING_PROCS)
+    for proc in procs:
+        _terminate_process(proc, grace_sec=3.0)
 
 
-def _parse_lap_times(track_log_path: Path, sim_stdout_path: Path) -> list[float]:
+def _close_proc(proc: subprocess.Popen[str] | None) -> None:
+    if proc is None:
+        return
+    _unregister_proc(proc)
+
+
+def _parse_lap_times(track_log_path: Path) -> list[float]:
     lap_times: list[float] = []
 
-    def parse_text(text: str) -> None:
-        for match in LAP_REGEX.finditer(text):
-            lap_times.append(float(match.group(2)))
+    if not track_log_path.exists():
+        return lap_times
 
-    if track_log_path.exists():
-        parse_text(track_log_path.read_text(encoding="utf-8", errors="ignore"))
-
-    if not lap_times and sim_stdout_path.exists():
-        parse_text(sim_stdout_path.read_text(encoding="utf-8", errors="ignore"))
+    text = track_log_path.read_text(encoding="utf-8", errors="ignore")
+    for match in LAP_REGEX.finditer(text):
+        lap_times.append(float(match.group(2)))
 
     return lap_times
 
@@ -181,7 +198,7 @@ def _run_single(
     run_spec: RunSpec,
     run_idx: int,
     args: argparse.Namespace,
-    manifest_dir: Path,
+    _manifest_dir: Path,
 ) -> dict[str, Any]:
     start_wall = time.time()
     run_name = _safe_name(run_spec.name)
@@ -195,7 +212,7 @@ def _run_single(
     controller_params = _ensure_params(controller_cfg, "controller")
     sim_params = _ensure_params(sim_cfg, "sim_node")
 
-    # Per-run isolated logs to support safe parallel execution.
+    # Per-run isolated metric files.
     midline_log_path = run_dir / "midline_deviation_summary.csv"
     track_log_path = run_dir / "track_times.log"
     collisions_log_path = run_dir / "collisions.log"
@@ -233,9 +250,6 @@ def _run_single(
         "&& source /root/driverless/driverless_ws/install/setup.bash"
     )
 
-    sim_stdout = run_dir / "sim.stdout.log"
-    controller_stdout = run_dir / "controller.stdout.log"
-
     sim_cmd = (
         f"{source_prefix} && ros2 run controls sim --ros-args "
         f"--params-file {shlex.quote(str(generated_sim))}"
@@ -245,63 +259,83 @@ def _run_single(
         f"--params-file {shlex.quote(str(generated_controller))}"
     )
 
-    sim_proc = _run_cmd(sim_cmd, env=env, log_path=sim_stdout)
-    time.sleep(max(args.controller_start_delay_sec, 0.0))
-    controller_proc = _run_cmd(controller_cmd, env=env, log_path=controller_stdout)
-
     status = "ok"
     error = ""
     sim_exit_code: int | None = None
     controller_exit_code: int | None = None
 
+    sim_proc: subprocess.Popen[str] | None = None
+    controller_proc: subprocess.Popen[str] | None = None
+
     deadline = time.monotonic() + run_spec.timeout_sec
 
     try:
-        while True:
-            sim_exit_code = sim_proc.poll()
-            controller_exit_code = controller_proc.poll()
+        if _STOP_EVENT.is_set():
+            status = "aborted"
+            error = "Harness interrupted before launch"
+        else:
+            sim_proc = _run_cmd(sim_cmd, env=env)
 
-            if sim_exit_code is not None:
-                break
+            delay_remaining = max(args.controller_start_delay_sec, 0.0)
+            while delay_remaining > 0.0 and not _STOP_EVENT.is_set():
+                sleep_chunk = min(0.1, delay_remaining)
+                time.sleep(sleep_chunk)
+                delay_remaining -= sleep_chunk
 
-            if controller_exit_code is not None and controller_exit_code != 0:
-                status = "failed"
-                error = f"controller exited early with code {controller_exit_code}"
-                _terminate_process(sim_proc)
+            if _STOP_EVENT.is_set():
+                status = "aborted"
+                error = "Harness interrupted before controller launch"
+            else:
+                controller_proc = _run_cmd(controller_cmd, env=env)
+
+            while status == "ok":
+                if _STOP_EVENT.is_set():
+                    status = "aborted"
+                    error = "Harness interrupted"
+                    break
+
+                sim_exit_code = sim_proc.poll() if sim_proc is not None else sim_exit_code
+                controller_exit_code = controller_proc.poll() if controller_proc is not None else controller_exit_code
+
+                if sim_exit_code is not None:
+                    break
+
+                if controller_exit_code is not None and controller_exit_code != 0:
+                    status = "failed"
+                    error = f"controller exited early with code {controller_exit_code}"
+                    break
+
+                if time.monotonic() > deadline:
+                    status = "failed"
+                    error = f"timeout after {run_spec.timeout_sec}s"
+                    break
+
+                time.sleep(0.25)
+
+        # Simulator finished or we aborted/failed; terminate any remaining subprocesses.
+        if sim_proc is not None:
+            _terminate_process(sim_proc)
+            if sim_exit_code is None:
                 sim_exit_code = sim_proc.poll()
-                break
 
-            if time.monotonic() > deadline:
-                status = "failed"
-                error = f"timeout after {run_spec.timeout_sec}s"
-                _terminate_process(sim_proc)
-                _terminate_process(controller_proc)
-                sim_exit_code = sim_proc.poll()
+        if controller_proc is not None:
+            _terminate_process(controller_proc)
+            if controller_exit_code is None:
                 controller_exit_code = controller_proc.poll()
-                break
 
-            time.sleep(0.25)
-
-        # Simulator finished; terminate controller if still alive.
-        _terminate_process(controller_proc)
-        if controller_exit_code is None:
-            controller_exit_code = controller_proc.poll()
-
-        if sim_exit_code is None:
-            sim_exit_code = sim_proc.poll()
-
-        if sim_exit_code != 0:
+        if status == "ok" and sim_exit_code not in (0, None):
             status = "failed"
-            if not error:
-                error = f"sim exited with code {sim_exit_code}"
+            error = f"sim exited with code {sim_exit_code}"
 
     finally:
-        _terminate_process(sim_proc)
-        _terminate_process(controller_proc)
-        _close_log(sim_proc)
-        _close_log(controller_proc)
+        if sim_proc is not None:
+            _terminate_process(sim_proc)
+        if controller_proc is not None:
+            _terminate_process(controller_proc)
+        _close_proc(sim_proc)
+        _close_proc(controller_proc)
 
-    lap_times = _parse_lap_times(track_log_path, sim_stdout)
+    lap_times = _parse_lap_times(track_log_path)
     midline_rows, midline_final = _parse_midline(midline_log_path)
 
     duration_sec = time.time() - start_wall
@@ -456,6 +490,28 @@ def _build_workspace(workspace: Path, output_dir: Path) -> None:
         raise RuntimeError(f"Build failed. See log: {build_log}")
 
 
+def _install_signal_handlers() -> dict[int, Any]:
+    previous: dict[int, Any] = {}
+
+    def _handle_signal(signum: int, _frame: Any) -> None:
+        if not _STOP_EVENT.is_set():
+            signame = signal.Signals(signum).name
+            print(f"Received {signame}. Stopping harness and terminating child processes...", file=sys.stderr)
+        _STOP_EVENT.set()
+        _terminate_all_running_processes()
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        previous[sig] = signal.getsignal(sig)
+        signal.signal(sig, _handle_signal)
+
+    return previous
+
+
+def _restore_signal_handlers(previous: dict[int, Any]) -> None:
+    for sig, handler in previous.items():
+        signal.signal(sig, handler)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run automated controls benchmark sweeps")
     parser.add_argument("--manifest", required=True, help="Path to runs manifest YAML")
@@ -469,7 +525,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--build", action="store_true", help="Build controls workspace before running tests")
     parser.add_argument("--base-ros-domain-id", type=int, default=70, help="Base ROS_DOMAIN_ID for run isolation")
     parser.add_argument("--default-timeout-sec", type=int, default=600, help="Default per-run timeout")
-    parser.add_argument("--controller-start-delay-sec", type=float, default=1.0, help="Delay between launching sim and controller")
+    parser.add_argument(
+        "--controller-start-delay-sec",
+        type=float,
+        default=1.0,
+        help="Delay between launching sim and controller",
+    )
     parser.add_argument(
         "--force-sim-safe-controller",
         action="store_true",
@@ -500,39 +561,82 @@ def main() -> int:
     results_dir = Path(args.results_dir).resolve()
     results_dir.mkdir(parents=True, exist_ok=True)
 
+    previous_handlers = _install_signal_handlers()
     try:
         run_specs = _load_manifest(manifest_path, args)
         print(f"Loaded {len(run_specs)} run specs from {manifest_path}")
+
+        if _STOP_EVENT.is_set():
+            return 130
 
         if args.build:
             print("Building controls workspace before benchmark run...")
             _build_workspace(Path(args.workspace).resolve(), results_dir)
 
-        results: list[dict[str, Any]] = [None] * len(run_specs)  # type: ignore[list-item]
+        results: list[dict[str, Any] | None] = [None] * len(run_specs)
         with ThreadPoolExecutor(max_workers=args.parallelism) as executor:
             futures = {
                 executor.submit(_run_single, run_spec, idx, args, manifest_path.parent.resolve()): idx
                 for idx, run_spec in enumerate(run_specs)
             }
+
             for future in as_completed(futures):
                 idx = futures[future]
-                result = future.result()
+
+                try:
+                    result = future.result()
+                except CancelledError:
+                    result = {
+                        "name": run_specs[idx].name,
+                        "status": "aborted",
+                        "error": "Cancelled",
+                        "lap_count": 0,
+                        "best_lap_sec": None,
+                    }
+                except Exception as exc:
+                    result = {
+                        "name": run_specs[idx].name,
+                        "status": "failed",
+                        "error": str(exc),
+                        "lap_count": 0,
+                        "best_lap_sec": None,
+                    }
+
                 results[idx] = result
                 print(
-                    f"[{idx + 1}/{len(run_specs)}] {result['name']}: {result['status']} "
-                    f"(laps={result['lap_count']}, best={result['best_lap_sec']})"
+                    f"[{idx + 1}/{len(run_specs)}] {result.get('name')}: {result.get('status')} "
+                    f"(laps={result.get('lap_count')}, best={result.get('best_lap_sec')})"
                 )
 
-        summary_json, summary_csv = _write_summary(results, results_dir)
-        print(f"Wrote summary JSON: {summary_json}")
-        print(f"Wrote summary CSV:  {summary_csv}")
+                if _STOP_EVENT.is_set():
+                    for pending in futures:
+                        pending.cancel()
+                    break
 
-        failed = [r for r in results if r.get("status") != "ok"]
+        completed_results = [r for r in results if r is not None]
+        if completed_results:
+            summary_json, summary_csv = _write_summary(completed_results, results_dir)
+            print(f"Wrote summary JSON: {summary_json}")
+            print(f"Wrote summary CSV:  {summary_csv}")
+
+        if _STOP_EVENT.is_set():
+            return 130
+
+        failed = [r for r in completed_results if r.get("status") != "ok"]
         return 1 if failed else 0
 
+    except KeyboardInterrupt:
+        _STOP_EVENT.set()
+        _terminate_all_running_processes()
+        print("Harness interrupted. Child processes terminated.", file=sys.stderr)
+        return 130
     except Exception as exc:
         print(f"Harness failed: {exc}", file=sys.stderr)
         return 1
+    finally:
+        _STOP_EVENT.set()
+        _terminate_all_running_processes()
+        _restore_signal_handlers(previous_handlers)
 
 
 if __name__ == "__main__":

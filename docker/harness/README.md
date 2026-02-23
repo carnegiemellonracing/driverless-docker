@@ -67,4 +67,4 @@ By default:
 
 - `summary.json`
 - `summary.csv`
-- per-run logs/configs under `<run_name>/...`
+- per-run artifacts under `<run_name>/...` (generated configs + metrics files; node stdout/stderr is suppressed)
