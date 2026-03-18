@@ -46,24 +46,6 @@ services:
     #           count: all
     #           capabilities: [gpu]
 
-  harness:
-    profiles: ["harness"]
-    build:
-      context: ./docker/harness
-      dockerfile: Dockerfile
-    gpus: all
-    volumes:
-      - ${DRIVERLESS}:/root/driverless
-      - ./docker/harness:/root/harness
-      - ${LIBS}/canUsbKvaserTesting/linuxcan:/root/canUsbKvaserTesting/linuxcan
-    environment:
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - LD_LIBRARY_PATH=/root/canUsbKvaserTesting/linuxcan/canlib
-    working_dir: /root/harness
-    command: sleep infinity
-    stdin_open: true
-    tty: true
-
   novnc:
     image: theasp/novnc:latest
     environment:
