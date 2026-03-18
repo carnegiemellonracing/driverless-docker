@@ -18,6 +18,7 @@ services:
       - "8765:8765"
     stdin_open: true
     tty: true
+
   ml-dev:
     profiles: ["ml-dev"]
     build:
@@ -44,6 +45,7 @@ services:
     #         - driver: nvidia
     #           count: all
     #           capabilities: [gpu]
+
   novnc:
     image: theasp/novnc:latest
     environment:
@@ -55,8 +57,10 @@ services:
       - "8080:8080"
     networks:
       - x11
+
 networks:
   x11:
+
 secrets:
   github_pat:
     environment: GH_PAT
