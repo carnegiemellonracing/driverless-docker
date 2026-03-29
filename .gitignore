@@ -4,3 +4,4 @@ ml_data/
 
 .DS_Store
 tags
+.env

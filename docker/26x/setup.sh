@@ -20,6 +20,38 @@ set -e
 apt update
 apt install -y git gh vim python3-pip locales curl tmux
 
+OPENCV_CPP_VERSION=4.11.0
+OPENCV_PYTHON_VERSION=4.11.0.86
+
+# Build and install a newer system OpenCV for C++ ROS nodes.
+apt install -y build-essential cmake pkg-config
+apt install -y libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+apt install -y libxvidcore-dev libx264-dev libjpeg-dev libpng-dev libtiff-dev gfortran
+apt install -y libatlas-base-dev libtbb2 libtbb-dev libdc1394-dev
+
+cd /tmp
+git clone --branch ${OPENCV_CPP_VERSION} --depth 1 https://github.com/opencv/opencv.git opencv
+cmake -S /tmp/opencv -B /tmp/opencv/build \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_INSTALL_PREFIX=/opt/opencv-${OPENCV_CPP_VERSION} \
+    -D BUILD_LIST=core,imgproc,imgcodecs,highgui,videoio,dnn,calib3d,features2d,flann \
+    -D BUILD_TESTS=OFF \
+    -D BUILD_PERF_TESTS=OFF \
+    -D BUILD_EXAMPLES=OFF \
+    -D BUILD_opencv_python3=OFF \
+    -D BUILD_JAVA=OFF
+cmake --build /tmp/opencv/build -j"$(nproc)"
+cmake --install /tmp/opencv/build
+ln -sfn /opt/opencv-${OPENCV_CPP_VERSION} /opt/opencv-current
+echo "/opt/opencv-${OPENCV_CPP_VERSION}/lib" > /etc/ld.so.conf.d/opencv-${OPENCV_CPP_VERSION}.conf
+ldconfig
+rm -rf /tmp/opencv
+
+# Install a newer Python cv2 wheel for Python tooling only.
+python3 -m pip install --no-cache-dir --upgrade pip
+python3 -m pip uninstall -y opencv-python opencv-python-headless opencv-contrib-python || true
+python3 -m pip install --no-cache-dir "opencv-python==${OPENCV_PYTHON_VERSION}"
+
 curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~.git-completion.bash
 
 
@@ -53,13 +85,28 @@ curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-com
 #----------------------END OLD---------------------
 #<-------------------------------------------------
 
+apt update
+
 apt install -y ros-dev-tools ros-humble-tf-transformations libeigen3-dev libgsl-dev
 
 # rosbag mcap storage plugin
 apt install -y ros-humble-rosbag2-storage-mcap
 
-# Foxglove bridge
-apt install -y ros-humble-foxglove-bridge
+# Foxglove bridge (has been dropped from current ros humble apt sync)
+# apt install -y ros-humble-foxglove-bridge
+
+# build foxglove from source
+mkdir -p /root/ros2_ws/src
+cd /root/ros2_ws/src
+if [ ! -d foxglove-sdk ]; then
+    git clone https://github.com/foxglove/foxglove-sdk.git
+fi
+cd /root/ros2_ws
+# Ensure ROS package CMake configs (including ament_cmake) are on CMAKE_PREFIX_PATH.
+source /opt/ros/humble/setup.bash
+rosdep install --from-paths src --ignore-src -r -y
+colcon build --packages-select foxglove_bridge
+source install/setup.bash
 
 # bc for bash math (used for scripts)
 apt install -y bc
@@ -82,7 +129,15 @@ fi
 
 
 # Clone driverless repo
-git clone --recurse-submodules https://$GITHUB_USERNAME:$(cat /run/secrets/github_pat)@github.com/carnegiemellonracing/driverless.git
+if [[ -z "${GITHUB_USERNAME}" ]]; then
+    echo "Error: GITHUB_USERNAME is not set." >&2
+    exit 1
+fi
+if [[ ! -f /run/secrets/github_pat ]]; then
+    echo "Error: /run/secrets/github_pat not found." >&2
+    exit 1
+fi
+git clone --recurse-submodules https://${GITHUB_USERNAME}:$(cat /run/secrets/github_pat)@github.com/carnegiemellonracing/driverless.git
 cd driverless/driverless_ws
 git remote rm origin
 git remote add origin https://github.com/carnegiemellonracing/driverless.git

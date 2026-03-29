@@ -11,5 +11,11 @@ RUN chmod +x /setup.sh
 # run without gtsam built
 RUN --mount=type=secret,id=github_pat /setup.sh  
 
+ENV OPENCV_ROOT=/opt/opencv-current
+ENV OpenCV_DIR=${OPENCV_ROOT}/lib/cmake/opencv4
+ENV CMAKE_PREFIX_PATH=${OPENCV_ROOT}:${CMAKE_PREFIX_PATH}
+ENV PKG_CONFIG_PATH=${OPENCV_ROOT}/lib/pkgconfig:${PKG_CONFIG_PATH}
+ENV LD_LIBRARY_PATH=${OPENCV_ROOT}/lib:${LD_LIBRARY_PATH}
+
 RUN chmod +x /root/driverless/scripts/tools/driverless_setup.sh
 RUN /root/driverless/scripts/tools/driverless_setup.sh
