@@ -22,6 +22,31 @@ apt install -y git gh vim python3-pip locales curl tmux
 
 OPENCV_CPP_VERSION=4.11.0
 OPENCV_PYTHON_VERSION=4.11.0.86
+CUDA_TOOLKIT_VERSION=12-9
+TENSORRT_VERSION=10.16.1.11-1+cuda12.9
+CVCUDA_VERSION=0.16.0
+
+# Install CUDA Toolkit + TensorRT dev headers/libs.
+curl -fsSL -o /tmp/cuda-keyring_1.1-1_all.deb \
+    https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+dpkg -i /tmp/cuda-keyring_1.1-1_all.deb
+rm -f /tmp/cuda-keyring_1.1-1_all.deb
+apt update
+apt install -y \
+    cuda-toolkit-${CUDA_TOOLKIT_VERSION} \
+    libnvinfer-headers-dev=${TENSORRT_VERSION} \
+    libnvinfer-safe-headers-dev=${TENSORRT_VERSION} \
+    libnvinfer10=${TENSORRT_VERSION} \
+    libnvinfer-dev=${TENSORRT_VERSION}
+
+# Install CV-CUDA + NVCV dev headers/libs from NVIDIA's release packages.
+cd /tmp
+curl -fsSLO https://github.com/CVCUDA/CV-CUDA/releases/download/v${CVCUDA_VERSION}/cvcuda-lib-${CVCUDA_VERSION}-cuda12-x86_64-linux.deb
+curl -fsSLO https://github.com/CVCUDA/CV-CUDA/releases/download/v${CVCUDA_VERSION}/cvcuda-dev-${CVCUDA_VERSION}-cuda12-x86_64-linux.deb
+apt install -y \
+    /tmp/cvcuda-lib-${CVCUDA_VERSION}-cuda12-x86_64-linux.deb \
+    /tmp/cvcuda-dev-${CVCUDA_VERSION}-cuda12-x86_64-linux.deb
+rm -f /tmp/cvcuda-lib-${CVCUDA_VERSION}-cuda12-x86_64-linux.deb /tmp/cvcuda-dev-${CVCUDA_VERSION}-cuda12-x86_64-linux.deb
 
 # Build and install a newer system OpenCV for C++ ROS nodes.
 apt install -y build-essential cmake pkg-config

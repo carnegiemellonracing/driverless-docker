@@ -17,5 +17,5 @@ ENV CMAKE_PREFIX_PATH=${OPENCV_ROOT}:${CMAKE_PREFIX_PATH}
 ENV PKG_CONFIG_PATH=${OPENCV_ROOT}/lib/pkgconfig:${PKG_CONFIG_PATH}
 ENV LD_LIBRARY_PATH=${OPENCV_ROOT}/lib:${LD_LIBRARY_PATH}
 
-RUN chmod +x /root/driverless/scripts/tools/driverless_setup.sh
-RUN /root/driverless/scripts/tools/driverless_setup.sh
+RUN chmod +x /root/driverless/scripts/setup/driverless_setup.sh
+RUN /root/driverless/scripts/setup/driverless_setup.sh
