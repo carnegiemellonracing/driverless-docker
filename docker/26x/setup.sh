@@ -124,7 +124,7 @@ apt install -y ros-humble-rosbag2-storage-mcap
 mkdir -p /root/ros2_ws/src
 cd /root/ros2_ws/src
 if [ ! -d foxglove-sdk ]; then
-    git clone https://github.com/foxglove/foxglove-sdk.git
+    git clone --branch ros-v3.2.6 --depth 1 https://github.com/foxglove/foxglove-sdk.git
 fi
 cd /root/ros2_ws
 # Ensure ROS package CMake configs (including ament_cmake) are on CMAKE_PREFIX_PATH.
