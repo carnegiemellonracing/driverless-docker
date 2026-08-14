@@ -11,5 +11,5 @@ RUN chmod +x /setup.sh
 # run without gtsam built
 RUN --mount=type=secret,id=github_pat /setup.sh  
 
-RUN chmod +x /root/driverless/scripts/tools/driverless_setup.sh
-RUN /root/driverless/scripts/tools/driverless_setup.sh
+RUN chmod +x /root/driverless/scripts/setup/driverless_setup.sh
+RUN /root/driverless/scripts/setup/driverless_setup.sh
