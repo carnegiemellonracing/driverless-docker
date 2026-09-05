@@ -57,6 +57,15 @@ install docker for your machine.
 
 it is also recommended to install Visual Studio Code (VSCode) along with the Dev Containers extension to work with the docker container
 
+>[!NOTE]
+><details>
+><summary>Orbstack For Mac Users</summary>
+> If you have a Mac, it is highly recommended you install orbstack since it uses far less resources than Docker Desktop. Orbstack is a lightweight alternative to the docker VM and allows for native integration with the docker CLI.
+>
+> - To install: [https://docs.orbstack.dev/quick-start](https://docs.orbstack.dev/quick-start)
+> - More information about orbstack: [https://docs.orbstack.dev/](https://docs.orbstack.dev/)
+></details>
+
 ## To clone the repository:
 
 ```bash
