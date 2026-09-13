@@ -1,6 +1,6 @@
 # Carnegie Mellon Racing Driverless Docker Environment Setup
 
-Learn more about CMR [here](https://cmr.red/driverless/driverless-docs/build/html/index.html).
+Learn more about CMR [here](https://docs.cmr.red/). If you don't have access, message @Arya on Slack!
 
 > [!NOTE]
 > If you have issues in any step of the following procedure, please check [issues that have already been solved](https://github.com/carnegiemellonracing/driverless-docker/issues?q=is%3Aissue)
@@ -10,8 +10,6 @@ Learn more about CMR [here](https://cmr.red/driverless/driverless-docs/build/htm
 - [What is Docker / Why do we use it?](#what-is-docker--why-do-we-use-it)
 - [Prerequisites](#prerequisites)
 - [To clone the repository](#to-clone-the-repository)
-- [Git Authentication](#authentication)
-  - [Generate a Personal Access Token](#generate-a-personal-access-token)
 - [To build / run the Docker container](#to-build--run-the-docker-container)
   - [Without SLAM Package](#without-slam-package)
   - [With ML-Dev Container](#with-ml-dev-container)
@@ -19,8 +17,6 @@ Learn more about CMR [here](https://cmr.red/driverless/driverless-docs/build/htm
 - [To run scripts from the container (attach interactive shell to container)](#to-run-scripts-from-the-container-attach-interactive-shell-to-container)
 - [To rebuild the Docker container](#to-rebuild-the-docker-container)
 - [Visualization](#visualization)
-  - [Foxglove](#foxglove)
-  - [RVIZ / RQT_GRAPH / Desktop-related stuff, e.g., matplotlib...](#rviz--rqt_graph--desktop-related-stuff-eg-matplotlib)
 
 ## What is Docker / Why do we use it?
 
@@ -48,6 +44,27 @@ Check out [this](https://docs.google.com/presentation/d/1i58fbb-e5uO1mVOff-ncIio
 
 install docker for your machine.
 [Docker desktop](https://docs.docker.com/desktop/) recommended, as it has multiple useful tools (e.g., GUI, docker compose, etc...)
+
+>[!NOTE]
+> WINDOWS
+><details>
+><summary>On Windows if Docker Desktop says your machine lacks "virtualization support" you may need to turn on windows virtualization features.</summary>
+>
+> 1. `win + R`
+> 2. `optionalfeatures` + ENTER
+> 3. check `Virtual Machine Platform` , `Windows Subsystem for Linux` ,  `Windows Hypervisor???`
+> after this you may also have to install Windows Subsystem for Linux 2 (WSL2), but Docker will supply the correct command if necessary.
+></details>
+
+install Git and the GitHub CLI for your machine.
+
+>[!NOTE]
+> Windows users, make sure to install in a powershell with administrator access. Winget is a useful tool:
+>
+> 1. ```winget install --id Git.Git -e --source winget```
+> 2. ```winget install --id GitHub.cli```
+>
+> For MacOS homebrew (`brew`) works nicely
 
 > [!WARNING]
 > There are a few potential pitfalls when installing docker desktop. This list below is not comprehensive, but we will aim to update it as new issues/solutions are found:
@@ -153,7 +170,7 @@ docker exec -it driverless-docker-26x-1 /bin/bash
 ```
 
 > [!NOTE]
-> Install the dev-containers VSCode extension to directly attach your VSCode front end to the docker container!
+> Install the [dev-containers VSCode extension](https://code.visualstudio.com/docs/devcontainers/tutorial) to directly attach your VSCode front end to the docker container!
 
 ## Authentication within Docker
 
@@ -177,8 +194,17 @@ docker compose up --build
 
 ## Rosbags
 
-We have a set of starter Rosbags with LiDAR data at the link below. You can download the files and paste them into <path_to_driverless_docker>/rosbags/ to have access in the Docker container. This can be done while the container is running :)
-[CMR drive link](https://drive.google.com/drive/u/0/folders/1oQVOXSc57-ql6duEqETDdyR1RkJkRvlT)
+Now that you have the basic development environment setup, how do you start messing with our pipeline?
+One of the easiest and best is to build our packages and run on some fake simulation data!
+
+> [!NOTE]
+> #### What is a Rosbag? 
+> ros2 bag is a command line tool for recording data published on topics in your system. It accumulates the data passed on any number of topics and saves it in a database. You can then replay the data to reproduce the results of your tests and experiments. Recording topics is also a great way to share your work and allow others to recreate it. - ROS2 Docs
+> #### How do I find CMR Rosbags so I can run them?
+> This year (27x) we will be storing all of our data on the Foxglove Data Platform in our [CMR Foxglove workspace](https://app.foxglove.dev/carnegie-mellon-racing-2/p/prj_0dhz9E7X44ere86g/dashboard). From there you can export/download any data collected from our lot or track tests, as well as (hopefully soon) simulation data as well! If you don't have access to Foxglove, please DM @Arya on slack your andrewID and he can add you! [Foxglove Docs for more](https://docs.foxglove.dev/docs/data)
+>
+> We also have a collection of starter Rosbags from previous years with LiDAR data at the link below. You can download the files and paste them into <path_to_driverless_docker>/rosbags/ to have access in the Docker container. This can be done while the container is running :)
+[CMR Gdrive link](https://drive.google.com/drive/u/0/folders/1oQVOXSc57-ql6duEqETDdyR1RkJkRvlT)
 
 ## Visualization
 
