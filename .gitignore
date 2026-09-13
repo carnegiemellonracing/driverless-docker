@@ -2,5 +2,7 @@ rosbags/
 test_ws/
 ml_data/
 
+.env
+
 .DS_Store
 tags
