@@ -73,61 +73,6 @@ it is also recommended to install Visual Studio Code (VSCode) along with the Dev
 git clone https://github.com/carnegiemellonracing/driverless-docker.git
 ```
 
-## Authentication
-
-_Now that CMR Driverless is a private repository we need to authenticate via [personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#about-personal-access-tokens)_
-
-#### Generate a Personal Access Token
-
-<details>
-<summary>How to generate a token</summary>
-
-- Go to [GitHub](https://github.com/settings/tokens) (GitHub -> Settings -> Developer Settings -> Personal Access Tokens)
-- You can use either Classic or Fine-Grained Tokens. _You may not have access to fine-grained tokens for the CMR organization_
-
-> [!WARNING]
-> Make sure that your token time scope is set less than 365 days. Otherwise it will not work with our CMR organization settings, and not clone the repo correctly.
-
-  - Classic: Ensure the following are selected (add write:packages if you have access / need it)
-
-  ![Classic Token Scopes](Images/classic_token_scopes.png "Classic Token Required Scopes")
-
-  ![Sample Token Gen Output](Images/sample_token_output.png "Sample output token")
-  _don't try this token..._
-
-- Copy the token and export to your terminal where you cloned the driverless-docker repo as a new local variable.
-
-</details>
-
-
-
-> [!IMPORTANT]
-> Make sure you follow the next instructions based on your OS
-><details>
-><summary>MACOS / LINUX</summary>
->
->```bash
-># Make sure to paste your token / username instead of the >bracketed text
->export GH_PAT="<YOUR TOKEN HERE>"
->export GH_USER="<YOUR GITHUB USERNAME>"
->```
-></details>
->
-><details>
-><summary>WINDOWS</summary>
->
->- create a text file in your `driverless-docker/` folder >with the name `.env`
->- Use a text editor such as vim, NotePad, or VSCode to add >the following two lines:
->
->```bash
->GH_PAT="<YOUR TOKEN HERE>"
->GH_USER="<YOUR GITHUB USERNAME>"
->```
->
-></details>
-
-
-> 
 ## To build / run the Docker container:
 
 #### Base Installation
@@ -138,8 +83,19 @@ cd driverless-docker
 docker compose up
 ```
 
+*Once docker compose up has finished (no longer printing to terminal):*
+
+Open another terminal and run the following:
+
+```bash
+docker exec -it driverless-docker-26x-1 /bin/bash
+bash /start.sh # this helps you set up github authentication and installs the driverless repo!
+```
+
 > [!NOTE]
 > run `docker compose up -d` if you want to run the node in detached mode in the background. You can always turn it off from docker desktop, VSCode, or the CLI.
+
+
 
 #### With ML-Dev Container
 

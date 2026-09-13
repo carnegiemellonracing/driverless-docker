@@ -3,11 +3,8 @@ services:
     build:
       context: ./docker/26x
       dockerfile: Dockerfile
-      secrets:
-        - github_pat
-      args:
-        GITHUB_USERNAME: "$GH_USER"
     volumes:
+      - ./driverless:/root/driverless
       - ./test_ws:/root/test_ws
       - ./rosbags:/root/rosbags
     environment:
