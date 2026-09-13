@@ -82,10 +82,7 @@ fi
 
 
 # Clone driverless repo
-git clone --recurse-submodules https://$GITHUB_USERNAME:$(cat /run/secrets/github_pat)@github.com/carnegiemellonracing/driverless.git
-cd driverless/driverless_ws
-git remote rm origin
-git remote add origin https://github.com/carnegiemellonracing/driverless.git
+# MOVED to 26x/start.sh. This is so that users can setup auth via github cli instead of PAT
 
 
 source /opt/ros/humble/setup.bash
@@ -108,7 +105,3 @@ if [ -f ~/.git-completion.bash ]; then
 fi
 
 EOF
-
-# Add commands to build relevent packages
-# colcon build --packages-up-to perceptions_24a_cpp
-# colcon build --packages-up-to planning
