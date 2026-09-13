@@ -1,3 +1,8 @@
+# ATTENTION, THIS REPO IS NOW DEPRECATED
+newest setup information can be found at https://github.com/carnegiemellonracing/driverless/tree/main/docker!
+
+
+
 # Carnegie Mellon Racing Driverless Docker Environment Setup
 
 Learn more about CMR [here](https://docs.cmr.red/). If you don't have access, message @Arya on Slack!
