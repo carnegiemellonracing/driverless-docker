@@ -54,6 +54,7 @@ install docker for your machine.
 >
 > 1. For Linux Users, ensure that you add your user to the docker group at the end of setup (see [docker guide](https://docs.docker.com/engine/install/linux-postinstall/)). This will ensure you're running the container with the correct permissions! (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/4))
 > 2. For MacOS users ensure rosetta setting in docker desktop is unchecked (see [issue](https://github.com/carnegiemellonracing/driverless-docker/issues/1))
+> 3. For Windows users using rosbags with WSL can sometimes result in painfully slow playback due to serialization / deserialization delays from the C drive to WSL live. see https://github.com/carnegiemellonracing/driverless-docker/issues/12 for more, but the solution is often to change the rosbag mount to your WSL filesystem
 
 it is also recommended to install Visual Studio Code (VSCode) along with the Dev Containers extension to work with the docker container
 
